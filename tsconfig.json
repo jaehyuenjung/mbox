@@ -17,8 +17,10 @@
         "baseUrl": ".",
         "paths": {
             "@libs/*": ["libs/*"],
-            "@components/*": ["components/*"]
-        }
+            "@components/*": ["components/*"],
+            "@types/*": ["types/*"]
+        },
+        "typeRoots": ["./types"]
     },
     "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx"],
     "exclude": ["node_modules"]

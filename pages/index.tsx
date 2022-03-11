@@ -1,9 +1,10 @@
+import useUser from "@libs/client/useUser";
 import type { NextPage } from "next";
-import Head from "next/head";
-import Image from "next/image";
-import styles from "../styles/Home.module.css";
 
-const Home: NextPage = () => {
+interface HomeProps {}
+
+const Home: NextPage<HomeProps> = () => {
+    const { user } = useUser();
     return null;
 };
 
