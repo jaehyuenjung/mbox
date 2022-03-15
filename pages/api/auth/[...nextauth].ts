@@ -1,14 +1,38 @@
-import NextAuth from "next-auth";
+import NextAuth, { Session, User } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
 import EmailProvider from "next-auth/providers/email";
+import KakaoProvider from "next-auth/providers/kakao";
+import NaverProvider from "next-auth/providers/naver";
+import FacebookProvider from "next-auth/providers/facebook";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import nodemailer from "nodemailer";
 import client from "@libs/server/client";
+import { JWT } from "next-auth/jwt";
+import bcrypt from "bcrypt";
+
+interface TokenType extends JWT {
+    user?: User;
+}
+
+interface SessionType {
+    session: Session;
+    token: TokenType;
+    user?: User;
+}
 
 export default NextAuth({
     callbacks: {
-        session({ session, token, user }) {
-            session.user = { id: user.id };
-            return session; // The return type will match the one returned in `useSession()`
+        async jwt({ token, user, account }) {
+            if (user) {
+                token.user = { id: user.id };
+            }
+            return token;
+        },
+        async session({ session, token, user }: SessionType) {
+            if (token.user) {
+                session.user = token.user;
+            }
+            return session;
         },
     },
     pages: {
@@ -17,6 +41,32 @@ export default NextAuth({
     },
     adapter: PrismaAdapter(client),
     providers: [
+        CredentialsProvider({
+            name: "Credentials",
+            credentials: {
+                email: {
+                    label: "email",
+                    type: "email",
+                },
+                password: { label: "Password", type: "password" },
+            },
+            async authorize(credentials, req) {
+                const { email, password } = credentials!;
+
+                const profile = await client.user.findUnique({
+                    where: { email },
+                });
+
+                const checkPassword = await bcrypt.compare(
+                    password,
+                    String(profile?.password)
+                );
+                if (profile && checkPassword) {
+                    return profile;
+                }
+                throw new Error("Incorrect email or password.");
+            },
+        }),
         EmailProvider({
             server: {
                 host: process.env.EMAIL_SERVER_HOST,
@@ -43,7 +93,25 @@ export default NextAuth({
                 });
             },
         }),
+        KakaoProvider({
+            clientId: process.env.KAKAO_CLIENT_ID!,
+            clientSecret: process.env.KAKAO_CLIENT_SECRET!,
+        }),
+        NaverProvider({
+            clientId: process.env.NAVER_CLIENT_ID!,
+            clientSecret: process.env.NAVER_CLIENT_SECRET!,
+        }),
+        FacebookProvider({
+            clientId: process.env.FACEBOOK_CLIENT_ID!,
+            clientSecret: process.env.FACEBOOK_CLIENT_SECRET!,
+        }),
     ],
+
+    session: {
+        strategy: "jwt",
+        maxAge: 30 * 24 * 60,
+    },
+    secret: process.env.AUTH_SECRET,
 });
 
 function html({ url, host, email }: Record<"url" | "host" | "email", string>) {

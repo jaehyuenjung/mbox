@@ -1,69 +1,63 @@
 import { NextPage } from "next";
 import { signIn, useSession } from "next-auth/react";
-import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { createPortal } from "react-dom";
 import { useRouter } from "next/router";
+import Image from "next/image";
+import { RedirectableProviderType } from "next-auth/providers";
+import Link from "next/link";
+import { useState } from "react";
 
 interface EnterForm {
     email: string;
+    password: string;
 }
-
-const MagicLinkModal = ({ show = false, email = "" }) => {
-    if (!show) return null;
-
-    return createPortal(
-        <div className="fixed inset-0 z-10 bg-white bg-opacity-90 backdrop-filter backdrop-blur-md backdrop-grayscale">
-            <div className="min-h-screen px-6 flex flex-col items-center justify-center animate-zoomIn">
-                <div className="flex flex-col items-center justify-center text-center max-w-sm">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="shrink-0 w-12 h-12 text-blue-500"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                    >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M3 19v-8.93a2 2 0 01.89-1.664l7-4.666a2 2 0 012.22 0l7 4.666A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5M3 10l6.75 4.5M21 10l-6.75 4.5m0 0l-1.14.76a2 2 0 01-2.22 0l-1.14-.76"
-                        />
-                    </svg>
-                    <h3 className="mt-2 text-2xl font-semibold">
-                        Confirm your email
-                    </h3>
-                    <p className="mt-4 text-lg">
-                        We emailed a magic link to <strong>{email}</strong>.
-                        Check your inbox and click the link in the email to
-                        login.
-                    </p>
-                </div>
-            </div>
-        </div>,
-        document.body
-    );
-};
 
 const Enter: NextPage = () => {
     const router = useRouter();
     const { data: session } = useSession();
-    const { register, handleSubmit, getValues } = useForm<EnterForm>();
-    const [showModal, setShowModal] = useState(false);
-    const onValid = ({ email }: EnterForm) => {
-        signIn("email", {
+    const [error, setError] = useState<string>();
+    const { register, handleSubmit } = useForm<EnterForm>();
+    const onValid = async ({ email, password }: EnterForm) => {
+        setError("");
+
+        const response = await signIn<RedirectableProviderType>("credentials", {
             email,
+            password,
             redirect: false,
-            callbackUrl: `${window.location.origin}/auth/confirmRequest`,
-        })
-            .then(() => setShowModal(true))
-            .catch((error) => {});
+            callbackUrl: `${window.location.origin}/auth/checkEmail`,
+        });
+
+        if (response) {
+            if (response.error) {
+                setError(response.error);
+            } else {
+                router.replace("/auth/checkEmail");
+            }
+        }
+    };
+    // if (session) {
+    //     router.replace("/");
+    // }
+    console.log(session);
+    const onKakaoClick = async () => {
+        await signIn("kakao", {
+            redirect: false,
+            callbackUrl: `${window.location.origin}/`,
+        });
     };
 
-    if (session) {
-        router.replace("/");
-    }
-
+    const onNaverClick = async () => {
+        await signIn("naver", {
+            redirect: false,
+            callbackUrl: `${window.location.origin}/`,
+        });
+    };
+    const onFacebookClick = async () => {
+        await signIn("facebook", {
+            redirect: false,
+            callbackUrl: `${window.location.origin}/`,
+        });
+    };
     return (
         <>
             <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
@@ -72,12 +66,17 @@ const Enter: NextPage = () => {
                 </h1>
                 <form
                     onSubmit={handleSubmit(onValid)}
-                    className="mt-8 rounded-lg shadow-md bg-white px-4 py-6 sm:px-8 sm:py-8 space-y-6 w-full max-w-md"
+                    className="mt-8 rounded-lg shadow-md bg-white px-4 py-6 sm:px-8 sm:py-8 flex flex-col gap-3 w-full max-w-md"
                 >
-                    <div className="flex flex-col space-y-1">
+                    {error && (
+                        <div className="border-l-2 border-red-500 pl-4 py-2 font-medium text-sm text-red-500">
+                            {error}
+                        </div>
+                    )}
+                    <div className="flex flex-col space-y-2 my-3">
                         <label
                             htmlFor="email"
-                            className="text-gray-500 text-sm"
+                            className="text-gray-800 text-sm font-bold"
                         >
                             Email address
                         </label>
@@ -86,19 +85,79 @@ const Enter: NextPage = () => {
                             id="email"
                             type="email"
                             required
-                            placeholder="elon@spacex.com"
+                            className="py-2 px-4 w-full border rounded-md border-gray-300 focus:outline-none focus:ring-4 focus:ring-opacity-20 focus:border-blue-400 focus:ring-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed "
+                        />
+                        <label
+                            htmlFor="password"
+                            className="text-gray-800 text-sm font-bold"
+                        >
+                            Password
+                        </label>
+                        <input
+                            {...register("password", { required: true })}
+                            id="password"
+                            type="password"
+                            required
                             className="py-2 px-4 w-full border rounded-md border-gray-300 focus:outline-none focus:ring-4 focus:ring-opacity-20 focus:border-blue-400 focus:ring-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed "
                         />
                     </div>
                     <button
                         type="submit"
-                        className="px-6 py-2 rounded-md text-white bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 w-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-500 transition"
+                        className="px-6 py-2 rounded-md text-white bg-gray-800 hover:bg-blue-600 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50 w-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-blue-500 transition"
                     >
                         Sign in
                     </button>
+
+                    <p className="text-sm text-center text-gray-600">
+                        New to mbox?{" "}
+                        <Link href="/auth/register">
+                            <a className="font-bold text-blue-600">
+                                Sign up for an account.
+                            </a>
+                        </Link>
+                    </p>
+
+                    <div className="flex flex-col space-y-7 py-3">
+                        <div className="relative h-[2px] flex justify-center items-center bg-gray-200">
+                            <div className="absolute bg-white p-2 font-bold">
+                                Or
+                            </div>
+                        </div>
+                        <div className="flex justify-center items-center space-x-5">
+                            <div
+                                onClick={onKakaoClick}
+                                className="relative w-10 aspect-square rounded-full overflow-hidden cursor-pointer shadow-md"
+                            >
+                                <Image
+                                    src="/assets/kakao-icon.png"
+                                    layout="fill"
+                                    alt="kakao"
+                                />
+                            </div>
+                            <div
+                                onClick={onNaverClick}
+                                className="relative w-10 aspect-square rounded-full overflow-hidden cursor-pointer shadow-md"
+                            >
+                                <Image
+                                    src="/assets/naver-icon.png"
+                                    layout="fill"
+                                    alt="naver"
+                                />
+                            </div>
+                            <div
+                                onClick={onFacebookClick}
+                                className="relative w-10 aspect-square rounded-full overflow-hidden cursor-pointer shadow-md"
+                            >
+                                <Image
+                                    src="/assets/facebook-icon.png"
+                                    layout="fill"
+                                    alt="facebook"
+                                />
+                            </div>
+                        </div>
+                    </div>
                 </form>
             </div>
-            <MagicLinkModal show={showModal} email={getValues("email")} />
         </>
     );
 };

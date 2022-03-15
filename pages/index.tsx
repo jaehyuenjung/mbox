@@ -5,7 +5,8 @@ interface HomeProps {}
 
 const Home: NextPage<HomeProps> = () => {
     const { user } = useUser();
-    return null;
+
+    return <div>{user?.id}</div>;
 };
 
 export default Home;
