@@ -11,8 +11,10 @@ async function handler(
     if (req.method === "GET") {
         const session = await getSession({ req });
 
+        if (!session) return res.json({ ok: false });
+
         const profile = await client.user.findUnique({
-            where: { id: session?.user.id },
+            where: { id: session.user.id },
             include: {
                 accounts: {
                     select: {
@@ -32,17 +34,14 @@ async function handler(
 
         const alreadyExist = await client.user.findFirst({
             where: {
-                OR: [{ email }, { name }],
+                OR: [{ email }],
             },
         });
 
-        if (alreadyExist) {
+        if (alreadyExist && alreadyExist.email === email) {
             return res.json({
                 ok: false,
-                error:
-                    alreadyExist.email === email
-                        ? "Email is invalid or has already been taken"
-                        : "Name is invalid or has already been taken",
+                error: "Email is invalid or has already been taken",
             });
         }
 
@@ -62,4 +61,8 @@ async function handler(
     }
 }
 
-export default widthHandler({ methods: ["GET", "POST"], handler });
+export default widthHandler({
+    methods: ["GET", "POST"],
+    handler,
+    isPrivate: false,
+});

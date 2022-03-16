@@ -36,6 +36,7 @@ const Enter: NextPage = () => {
             }
         }
     };
+
     if (session) {
         router.replace("/");
     }

@@ -21,9 +21,6 @@ interface CreateResponse extends ResponseType {
 }
 
 const Register: NextPage = () => {
-    const reg = new RegExp(
-        /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/g
-    );
     const router = useRouter();
     const { data: session } = useSession();
     const [strong, setStrong] = useState<boolean>();
@@ -49,12 +46,16 @@ const Register: NextPage = () => {
 
         const errorMessage = [] as string[];
 
-        if (!/^([a-zA-Z0-9ㄱ-ㅎ|ㅏ-ㅣ|가-힣]).{3,}$/g.test(name)) {
+        if (!/^([a-zA-Z0-9ㄱ-ㅎ|ㅏ-ㅣ|가-힣]).{1,}$/g.test(name)) {
             errorMessage.push(
-                "Name must be at least 3 characters, letters and numbers only."
+                "Name must be at least 2 characters, letters and numbers only."
             );
         } else {
-            if (!reg.test(password)) {
+            if (
+                !/^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{9,}$/g.test(
+                    password
+                )
+            ) {
                 errorMessage.push(
                     "Password is too weak. Minimum 10 characters and please include: 1 uppercase, digit, or special character. Password is leaked. This password was found in a data leak and can't be used."
                 );
@@ -74,16 +75,20 @@ const Register: NextPage = () => {
 
         if (errorMessage.length) {
             setError(errorMessage.join(" "));
+
+            setValue("password", "");
+            setValue("passwordCheck", "");
         } else {
             create({ email, name, password });
         }
-
-        setValue("password", "");
-        setValue("passwordCheck", "");
     };
     watch(({ password }) => {
         if (password) {
-            setStrong(reg.test(password));
+            setStrong(
+                /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{9,}$/g.test(
+                    password
+                )
+            );
         } else {
             setStrong(undefined);
         }
@@ -97,6 +102,9 @@ const Register: NextPage = () => {
             }
         }
     }, [data, router, setError]);
+    if (session) {
+        router.replace("/");
+    }
     return (
         <>
             <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
