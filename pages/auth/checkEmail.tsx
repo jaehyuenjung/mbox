@@ -1,7 +1,7 @@
 import { useRouter } from "next/router";
 import { NextPage } from "next";
 import useUser from "@libs/client/useUser";
-import { useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import { signIn } from "next-auth/react";
 
 const CheckEmail: NextPage = () => {

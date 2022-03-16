@@ -1,11 +1,12 @@
+import Input from "@components/input";
+import SNSIcon from "@components/sns-icon";
 import useMutation from "@libs/client/useMutation";
 import { ResponseType } from "@libs/server/withHandler";
 import { NextPage } from "next";
-import { signIn, useSession } from "next-auth/react";
-import Image from "next/image";
+import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 interface EnterForm {
@@ -96,24 +97,6 @@ const Register: NextPage = () => {
             }
         }
     }, [data, router, setError]);
-    const onKakaoClick = async () => {
-        await signIn("kakao", {
-            redirect: false,
-            callbackUrl: `${window.location.origin}/`,
-        });
-    };
-    const onNaverClick = async () => {
-        await signIn("naver", {
-            redirect: false,
-            callbackUrl: `${window.location.origin}/`,
-        });
-    };
-    const onFacebookClick = async () => {
-        await signIn("facebook", {
-            redirect: false,
-            callbackUrl: `${window.location.origin}/`,
-        });
-    };
     return (
         <>
             <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
@@ -130,103 +113,32 @@ const Register: NextPage = () => {
                         </div>
                     )}
                     <div className="flex flex-col space-y-2 my-3">
-                        <label
-                            htmlFor="email"
-                            className="text-gray-800 text-sm font-bold"
-                        >
-                            Email address
-                        </label>
-                        <input
-                            {...register("email", { required: true })}
+                        <Input
+                            label="Email Address"
+                            register={register("email", { required: true })}
                             id="email"
                             type="email"
-                            required
-                            className="py-2 px-4 w-full border rounded-md border-gray-300 focus:outline-none focus:ring-4 focus:ring-opacity-20 focus:border-blue-400 focus:ring-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed "
                         />
-                        <label
-                            htmlFor="email"
-                            className="text-gray-800 text-sm font-bold"
-                        >
-                            Name
-                        </label>
-                        <input
-                            {...register("name", { required: true })}
+                        <Input
+                            label="Name"
+                            register={register("name", { required: true })}
                             id="name"
                             type="text"
-                            required
-                            className="py-2 px-4 w-full border rounded-md border-gray-300 focus:outline-none focus:ring-4 focus:ring-opacity-20 focus:border-blue-400 focus:ring-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed "
                         />
-                        <div className="flex justify-between items-center">
-                            <label
-                                htmlFor="password"
-                                className="text-gray-800 text-sm font-bold"
-                            >
-                                Password
-                            </label>
-                            {strong !== undefined ? (
-                                <div className="flex items-center text-xs space-x-1">
-                                    {strong ? (
-                                        <span className="text-gray-600 font-semibold">
-                                            Strong
-                                        </span>
-                                    ) : (
-                                        <span className="text-gray-600 font-semibold">
-                                            Leaked
-                                        </span>
-                                    )}
-                                    {strong ? (
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            className="h-5 w-5 text-green-500"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke="currentColor"
-                                            strokeWidth="2"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                                            />
-                                        </svg>
-                                    ) : (
-                                        <svg
-                                            xmlns="http://www.w3.org/2000/svg"
-                                            className="h-5 w-5 text-red-500"
-                                            fill="none"
-                                            viewBox="0 0 24 24"
-                                            stroke="currentColor"
-                                            strokeWidth="2"
-                                        >
-                                            <path
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                                            />
-                                        </svg>
-                                    )}
-                                </div>
-                            ) : null}
-                        </div>
-                        <input
-                            {...register("password", { required: true })}
+                        <Input
+                            label="Password"
+                            register={register("password", { required: true })}
                             id="password"
                             type="password"
-                            required
-                            className="py-2 px-4 w-full border rounded-md border-gray-300 focus:outline-none focus:ring-4 focus:ring-opacity-20 focus:border-blue-400 focus:ring-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed "
+                            strong={strong}
                         />
-                        <label
-                            htmlFor="passwordCheck"
-                            className="text-gray-800 text-sm font-bold"
-                        >
-                            Password confirmation
-                        </label>
-                        <input
-                            {...register("passwordCheck", { required: true })}
+                        <Input
+                            label="Password confirmation"
+                            register={register("passwordCheck", {
+                                required: true,
+                            })}
                             id="passwordCheck"
                             type="password"
-                            required
-                            className="py-2 px-4 w-full border rounded-md border-gray-300 focus:outline-none focus:ring-4 focus:ring-opacity-20 focus:border-blue-400 focus:ring-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed "
                         />
                     </div>
 
@@ -251,36 +163,9 @@ const Register: NextPage = () => {
                             </div>
                         </div>
                         <div className="flex justify-center items-center space-x-5">
-                            <div
-                                onClick={onKakaoClick}
-                                className="relative w-10 aspect-square rounded-full overflow-hidden cursor-pointer shadow-md"
-                            >
-                                <Image
-                                    src="/assets/kakao-icon.png"
-                                    layout="fill"
-                                    alt="kakao"
-                                />
-                            </div>
-                            <div
-                                onClick={onNaverClick}
-                                className="relative w-10 aspect-square rounded-full overflow-hidden cursor-pointer shadow-md"
-                            >
-                                <Image
-                                    src="/assets/naver-icon.png"
-                                    layout="fill"
-                                    alt="naver"
-                                />
-                            </div>
-                            <div
-                                onClick={onFacebookClick}
-                                className="relative w-10 aspect-square rounded-full overflow-hidden cursor-pointer shadow-md"
-                            >
-                                <Image
-                                    src="/assets/facebook-icon.png"
-                                    layout="fill"
-                                    alt="facebook"
-                                />
-                            </div>
+                            <SNSIcon kind="kakao" />
+                            <SNSIcon kind="naver" />
+                            <SNSIcon kind="facebook" />
                         </div>
                     </div>
                 </form>
