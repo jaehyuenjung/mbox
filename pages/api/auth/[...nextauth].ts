@@ -37,7 +37,8 @@ export default NextAuth({
     },
     pages: {
         signIn: "/auth/enter",
-        signOut: "/",
+        signOut: "/auth/enter",
+        error: "/auth/enter",
     },
     adapter: PrismaAdapter(client),
     providers: [
@@ -111,6 +112,7 @@ export default NextAuth({
         strategy: "jwt",
         maxAge: 30 * 24 * 60,
     },
+
     secret: process.env.AUTH_SECRET,
 });
 

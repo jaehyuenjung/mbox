@@ -107,7 +107,7 @@ const Register: NextPage = () => {
     }
     return (
         <>
-            <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12">
+            <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 mx-auto">
                 <h1 className="mt-2 text-2xl sm:text-4xl text-center font-bold">
                     Sign up for your account
                 </h1>
@@ -171,9 +171,9 @@ const Register: NextPage = () => {
                             </div>
                         </div>
                         <div className="flex justify-center items-center space-x-5">
-                            <SNSIcon kind="kakao" />
-                            <SNSIcon kind="naver" />
-                            <SNSIcon kind="facebook" />
+                            <SNSIcon kind="kakao" isSignIn />
+                            <SNSIcon kind="naver" isSignIn />
+                            <SNSIcon kind="facebook" isSignIn />
                         </div>
                     </div>
                 </form>

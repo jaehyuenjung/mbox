@@ -19,6 +19,7 @@ async function handler(
                 accounts: {
                     select: {
                         id: true,
+                        provider: true,
                     },
                 },
             },

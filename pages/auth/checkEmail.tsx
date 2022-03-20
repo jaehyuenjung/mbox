@@ -1,12 +1,12 @@
 import { useRouter } from "next/router";
 import { NextPage } from "next";
-import useUser from "@libs/client/useUser";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { signIn } from "next-auth/react";
+import { BaseProps } from "@components/layout";
 
-const CheckEmail: NextPage = () => {
+const CheckEmail: NextPage<BaseProps> = ({ user }) => {
     const router = useRouter();
-    const { user } = useUser();
+    const [send, setSend] = useState<boolean>(false);
     const sendEmail = async (email: string) => {
         await signIn("email", {
             email,
@@ -17,10 +17,11 @@ const CheckEmail: NextPage = () => {
     useEffect(() => {
         if (user && (user.accounts.length || user.emailVerified)) {
             router.replace("/");
-        } else if (user && user.email && !user.emailVerified) {
+        } else if (user && !send && user.email && !user.emailVerified) {
             sendEmail(user.email);
+            setSend((prev) => !prev);
         }
-    }, [user, router]);
+    }, [user, router, send]);
     return (
         <div className="fixed inset-0 z-10 bg-white bg-opacity-90 backdrop-filter backdrop-blur-md backdrop-grayscale">
             <div className="min-h-screen px-6 flex flex-col items-center justify-center animate-zoomIn">
