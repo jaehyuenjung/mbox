@@ -45,7 +45,7 @@ const Enter: NextPage<BaseProps> = ({ user }) => {
             router.replace("/");
         }
     }, [user, router]);
-    console.log(error);
+
     return (
         <div className="min-h-screen flex flex-col items-center justify-center px-4 py-12 mx-auto">
             <h1 className="mt-2 text-2xl sm:text-4xl text-center font-bold">

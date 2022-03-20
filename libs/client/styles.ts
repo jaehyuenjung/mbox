@@ -4,6 +4,6 @@ export function getProviderColor(provider: string | undefined) {
             ? "bg-yellow-300"
             : provider === "naver"
             ? "bg-green-400"
-            : "bg-blue-500"
+            : "bg-blue-800"
         : "bg-gray-500";
 }
