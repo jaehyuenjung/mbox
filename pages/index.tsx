@@ -116,7 +116,7 @@ const Home: NextPage<BaseProps> = ({ user }) => {
                     <div
                         className={cls(
                             user ? "" : "blur-sm",
-                            "flex flex-col justify-center items-center space-y-8"
+                            "flex flex-col justify-center items-start space-y-8"
                         )}
                     >
                         <div className="flex items-center space-x-12">
@@ -143,36 +143,38 @@ const Home: NextPage<BaseProps> = ({ user }) => {
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div className="w-full flex justify-around">
-                        <div className="flex flex-col justify-center items-center text-center font-bold ">
-                            <span className="text-sm">TWEETS</span>
-                            <span className="text-sm">{1}</span>
+                        <div className="w-full flex justify-around">
+                            <div className="flex flex-col justify-center items-center text-center font-bold ">
+                                <span className="text-sm">TWEETS</span>
+                                <span className="text-sm">{1}</span>
+                            </div>
+                            <div className="flex flex-col justify-center items-center text-center font-bold ">
+                                <span className="text-sm">FOLLOWERS</span>
+                                <span className="text-sm">{1}</span>
+                            </div>
+                            <div className="flex flex-col justify-center items-center text-center font-bold ">
+                                <span className="text-sm">FOLLOWING</span>
+                                <span className="text-sm">{1}</span>
+                            </div>
                         </div>
-                        <div className="flex flex-col justify-center items-center text-center font-bold ">
-                            <span className="text-sm">FOLLOWERS</span>
-                            <span className="text-sm">{1}</span>
+                        <div>
+                            <p className="leading-none text-sm">
+                                {description}
+                            </p>
                         </div>
-                        <div className="flex flex-col justify-center items-center text-center font-bold ">
-                            <span className="text-sm">FOLLOWING</span>
-                            <span className="text-sm">{1}</span>
-                        </div>
-                    </div>
-                    <div>
-                        <p className="leading-none text-sm">{description}</p>
-                    </div>
-                    <div className="pt-4">
-                        <div className="flex items-center">
-                            <SNSIcon kind={user?.accounts[0]?.provider} />
-                            <span className="pl-3 text-lg font-semibold">
-                                {user?.accounts[0]
-                                    ? user.accounts[0].provider
-                                    : "mbox"}{" "}
-                                아이디 계정 회원
-                            </span>
-                        </div>
-                        <div className="text-sm text-gray-500 mt-2">
-                            {user?.email ? user.email : "unkown"}
+                        <div className="justify-start">
+                            <div className="flex items-center">
+                                <SNSIcon kind={user?.accounts[0]?.provider} />
+                                <span className="pl-3 text-lg font-semibold">
+                                    {user?.accounts[0]
+                                        ? user.accounts[0].provider
+                                        : "mbox"}{" "}
+                                    아이디 계정 회원
+                                </span>
+                            </div>
+                            <div className="text-sm text-gray-500 mt-2">
+                                {user?.email ? user.email : "unkown"}
+                            </div>
                         </div>
                     </div>
                     <button
