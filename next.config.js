@@ -6,6 +6,7 @@ const nextConfig = {
             "k.kakaocdn.net",
             "ssl.pstatic.net",
             "platform-lookaside.fbsbx.com",
+            "cdn.pixabay.com",
         ],
     },
 };

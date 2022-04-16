@@ -1,12 +1,11 @@
 import { BaseProps } from "@components/layout";
-import { cls } from "@libs/client/utils";
+import { cls, getProviderColor } from "@libs/client/utils";
 import type { NextPage } from "next";
 import { signOut } from "next-auth/react";
 import Image from "next/image";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import SNSIcon from "@components/sns-icon";
-import { getProviderColor } from "@libs/client/styles";
 
 const Home: NextPage<BaseProps> = ({ user }) => {
     const [open, setOpen] = useState<boolean>(false);
