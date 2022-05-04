@@ -46,7 +46,7 @@ let ss = 0;
 let ee = 0;
 let slider = false;
 
-const Font: NextPage<BaseProps> = ({ user }) => {
+const Font: NextPage<BaseProps> = ({}) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [width, setWidth] = useState(0);
     const [height, setHeight] = useState(0);
@@ -125,6 +125,7 @@ const Font: NextPage<BaseProps> = ({ user }) => {
             p5.smooth();
             p5.noStroke();
             p5.translate(x, 0, z);
+            const rectToDrag = p5.rect(50, 50, 200, 200);
 
             albumImages.forEach((image, index) => {
                 if (index === albumURLs.length - 1 && !hover) {

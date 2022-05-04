@@ -1,4 +1,9 @@
-import { AnimatePresence, useAnimation } from "framer-motion";
+import {
+    AnimatePresence,
+    AnimationControls,
+    MotionConfig,
+    useAnimation,
+} from "framer-motion";
 import { NextPage } from "next";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
@@ -7,48 +12,82 @@ import { cls } from "@libs/client/utils";
 import AnimationText from "@components/animation-text";
 
 const albums = [
-    { id: 1000, url: "/assets/elephant-hd-quality.png" },
+    { id: 1000, title: "elephant", url: "/assets/elephant-hd-quality.png" },
     {
         id: 1001,
+        title: "lighthouse",
         url: "https://cdn.pixabay.com/photo/2017/06/04/23/17/lighthouse-2372461__340.jpg",
     },
     {
         id: 1002,
+        title: "planet",
         url: "https://cdn.pixabay.com/photo/2016/09/29/13/08/planet-1702788__340.jpg",
     },
     {
         id: 1003,
+        title: "water",
         url: "https://cdn.pixabay.com/photo/2016/04/15/04/02/water-1330252__340.jpg",
     },
     {
         id: 1004,
+        title: "sunset",
         url: "https://cdn.pixabay.com/photo/2018/09/19/23/03/sunset-3689760__340.jpg",
     },
     {
         id: 1005,
+        title: "sunset01",
         url: "https://cdn.pixabay.com/photo/2016/05/05/02/37/sunset-1373171_960_720.jpg",
     },
     {
         id: 1006,
+        title: "sunset02",
         url: "https://cdn.pixabay.com/photo/2016/05/05/02/37/sunset-1373171_960_720.jpg",
     },
     {
         id: 1007,
+        title: "sunset03",
         url: "https://cdn.pixabay.com/photo/2016/05/05/02/37/sunset-1373171_960_720.jpg",
     },
 ];
+
+interface IAlbum {
+    id: number;
+    title: string;
+    url: string;
+}
+
+const infoWrapperVariants = {
+    visible: {
+        transition: { staggerChildren: 0.2, delayChildren: 2 },
+    },
+};
+
+const infoColVariants = {
+    hidden: {
+        y: 30,
+        opacity: 0,
+    },
+    visible: {
+        y: 0,
+        opacity: 1,
+    },
+};
 
 const page = Math.min(albums.length - 1, 6);
 
 const View: NextPage = () => {
     const [index, setIndex] = useState(0);
+    const [perIndex, setPerIndex] = useState(0);
     const [delay, setDelay] = useState(false);
 
     const perAlbums = [];
 
     if (page) {
         for (let i = 0; i < page; i++) {
-            perAlbums.push(albums[(index + i) % albums.length]);
+            perAlbums.push({
+                ...albums[(index + i) % albums.length],
+                id: (perIndex + i) % (page * 2 + 1),
+            });
         }
     }
 
@@ -56,20 +95,22 @@ const View: NextPage = () => {
         if (!delay) {
             setDelay(true);
             setIndex((prev) => (prev + 1) % albums.length);
+            setPerIndex((prev) => (prev + 1) % (page * 2 + 1));
         }
     };
+
     return (
         <div
-            onClick={onClick}
+            // onClick={onClick}
             className="relative py-4 mx-auto w-screen max-w-6xl h-screen overflow-hidden bg-gray-800"
         >
             <div
                 style={{ gridTemplateColumns: "2fr 1fr" }}
-                className="h-full grid grid-cols items-center"
+                className="h-full grid grid-cols items-center mr-16"
             >
                 <div
                     style={{
-                        perspective: "200px",
+                        perspective: "250px",
                         transformStyle: "preserve-3d",
                     }}
                     className="w-full h-full transform-gpu flex justify-end"
@@ -79,10 +120,9 @@ const View: NextPage = () => {
                             transformStyle: "preserve-3d",
                             transform: "rotateY(10deg) scaleY(1.2)",
                         }}
-                        className="relative w-full h-full flex justify-center items-center top-[5%]"
+                        className="relative w-full h-full flex justify-center items-center"
                     >
                         <AnimatePresence
-                            initial={false}
                             onExitComplete={() => {
                                 setDelay(false);
                             }}
@@ -98,20 +138,20 @@ const View: NextPage = () => {
                                     initial={{
                                         x: -i * 60,
                                         z: -i * 60,
+                                        filter: `blur(${i * 0.5}px)`,
                                     }}
                                     animate={{
                                         x: 60 - i * 60,
                                         z: 60 - i * 60,
+                                        filter: `blur(${i * 0.5}px)`,
                                     }}
                                     transition={{
-                                        default: { duration: 1.5 },
-                                        maskPosition: { duration: 5 },
-                                        WebkitMaskPosition: { duration: 5 },
+                                        default: { duration: 1.5 }, // 1.5
                                     }}
                                     className="absolute w-2/4 aspect-video"
                                 >
                                     <div className="relative w-full h-full">
-                                        <motion.div className="absolute w-full h-full bg-white opacity-80" />
+                                        <motion.div className="absolute w-full h-full bg-white rounded-md" />
                                         <motion.div
                                             style={{
                                                 maskImage:
@@ -130,11 +170,11 @@ const View: NextPage = () => {
                                                 opacity: i === 0 ? 1 : 0,
                                                 transition: {
                                                     delay: 1,
-                                                    duration: 1.5,
+                                                    duration: 1.5, // 1.5,
                                                 },
                                             }}
                                             className={cls(
-                                                "relative w-full h-full",
+                                                "relative w-full h-full rounded-md",
                                                 i === 0 ? "slider" : ""
                                             )}
                                         >
@@ -145,16 +185,18 @@ const View: NextPage = () => {
                                             />
                                         </motion.div>
                                     </div>
-                                    <div className="relative w-full h-1/3 -bottom-[2%]">
+                                    <div className="absolute w-full h-1/2 top-[102%] overflow-hidden">
                                         <motion.div
+                                            initial={{ opacity: 1 }}
                                             animate={{
-                                                opacity: i === 0 ? 0 : 0.8,
-                                                transition: {
-                                                    delay: 1,
-                                                    duration: 1.2,
-                                                },
+                                                opacity: i === 0 ? 0 : 1,
+                                                transition: { duration: 2 },
                                             }}
-                                            className="absolute w-full h-full bg-white"
+                                            style={{
+                                                background:
+                                                    "linear-gradient(to bottom, rgba(255,255,255,0.2) 1%, rgba(31, 41, 55, 1) 40%, rgba(31, 41, 55, 1) 100%)",
+                                            }}
+                                            className="absolute w-full h-[200%] rounded-md"
                                         />
                                         <motion.div
                                             style={{
@@ -170,24 +212,31 @@ const View: NextPage = () => {
                                                 maskSize: "3000% 100%",
                                                 WebkitMaskSize: "3000% 100%",
                                                 transform: "rotateX(180deg)",
+                                                backgroundImage: `url(${album.url})`,
+                                                backgroundSize: "100% 100%",
                                             }}
-                                            initial={{ opacity: 0 }}
+                                            initial={{
+                                                opacity: 0,
+                                            }}
                                             animate={{
-                                                opacity: i === 0 ? 1 : 0,
+                                                opacity: i === 0 ? 0.5 : 0,
+
                                                 transition: {
                                                     delay: 1,
                                                     duration: 1.5,
                                                 },
                                             }}
                                             className={cls(
-                                                "relative w-full h-full",
+                                                "relative w-full bg-center bg-no-repeat bg-cover h-[200%] rounded-md",
                                                 i === 0 ? "slider" : ""
                                             )}
                                         >
-                                            <Image
-                                                src={album.url}
-                                                layout="fill"
-                                                alt=""
+                                            <div
+                                                style={{
+                                                    background:
+                                                        "linear-gradient(to top, transparent 1%, rgba(31, 41, 55, 1) 40%, rgba(31, 41, 55, 1) 100%) ",
+                                                }}
+                                                className="w-full h-full"
                                             />
                                         </motion.div>
                                     </div>
@@ -196,17 +245,98 @@ const View: NextPage = () => {
                         </AnimatePresence>
                     </div>
                 </div>
-                <div>
-                    <AnimationText
-                        key={index}
-                        staggerTime={0.1}
-                        text="This is Album"
-                        kind="fading"
-                        afterColor="white"
-                        beforeColor="white"
-                    />
+                <div key={index} className="flex flex-col">
+                    <div>
+                        <h2 className="text-2xl font-bold">
+                            <AnimationText
+                                staggerTime={0.1}
+                                text="Title"
+                                kind="fading"
+                                className="text-white"
+                            />
+                        </h2>
+                        <AnimatePresence>
+                            <motion.div
+                                className="space-y-4"
+                                initial="hidden"
+                                animate="visible"
+                                variants={infoWrapperVariants}
+                            >
+                                <MotionConfig
+                                    transition={{
+                                        default: {
+                                            ease: "easeInOut",
+                                            duration: 0.5,
+                                        },
+                                    }}
+                                >
+                                    <motion.div
+                                        className="w-full flex space-x-2 text-gray-500"
+                                        variants={infoColVariants}
+                                    >
+                                        <div className="whitespace-nowrap">
+                                            {new Date().toDateString()}
+                                        </div>
+                                        <span>/</span>
+                                        <div>#태그 #태그 #태그</div>
+                                    </motion.div>
+                                    <motion.p
+                                        className="text-white"
+                                        variants={infoColVariants}
+                                    >
+                                        Lorem ipsum dolor sit amet consectetur
+                                        adipisicing elit. Dignissimos optio
+                                        fugiat reiciendis quam. Error debitis
+                                        qui numquam ducimus corporis nihil
+                                        distinctio necessitatibus iste aperiam?
+                                        Minus exercitationem distinctio natus
+                                        excepturi autem.
+                                    </motion.p>
+                                </MotionConfig>
+                            </motion.div>
+                        </AnimatePresence>
+                    </div>
+                    <div></div>
                 </div>
             </div>
+            <motion.div
+                className="absolute bottom-0"
+                initial={{ x: "-100%" }}
+                animate={{ x: 0 }}
+                transition={{ duration: 1.2 }}
+            >
+                <ul className="flex justify-between space-x-4 py-2 mx-4">
+                    {albums.map((album, i) => (
+                        <li
+                            key={i}
+                            className="relative text-white"
+                            onClick={() => {
+                                const gap =
+                                    (albums.length - (index - i)) %
+                                    albums.length;
+                                console.log(`gap: ${gap}`);
+                                setIndex(i);
+                                if (gap <= 6)
+                                    setPerIndex(
+                                        (prev) => (prev + gap) % (page * 2 + 1)
+                                    );
+                                else
+                                    setPerIndex(
+                                        (prev) => (prev + 6) % (page * 2 + 1)
+                                    );
+                            }}
+                        >
+                            <h4>{album.title}</h4>
+                            {i == index && (
+                                <motion.div
+                                    layoutId={"underline"}
+                                    className="w-full h-1 absolute -bottom-[2px] bg-red-400 rounded-md"
+                                />
+                            )}
+                        </li>
+                    ))}
+                </ul>
+            </motion.div>
         </div>
     );
 };
