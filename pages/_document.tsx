@@ -7,7 +7,7 @@ export default function MyDocument() {
                 <link href="https://fonts.googleapis.com/css2?family=Staatliches&display=swap" />
                 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@100&display=swap" />
             </Head>
-            <body>
+            <body className="overflow-hidden">
                 <Main />
                 <NextScript />
             </body>

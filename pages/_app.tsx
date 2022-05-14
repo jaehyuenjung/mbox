@@ -6,23 +6,22 @@ import React from "react";
 import Layout, { BaseProps } from "@components/layout";
 import { createPortal } from "react-dom";
 import { NextPage } from "next";
-import NavBar from "@components/NavBar";
+import NavBar from "@components/nav-bar";
 function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
-  const ComponentFC = ({ user }: BaseProps) => {
-    return <Component {...pageProps} user={user} />;
-  };
-  return (
-    <SWRConfig
-      value={{
-        fetcher: (url: string) =>
-          fetch(url).then((response) => response.json()),
-      }}
-    >
-      <SessionProvider session={session}>
-        <NavBar></NavBar>
-        <Layout FC={ComponentFC} />
-      </SessionProvider>
-    </SWRConfig>
-  );
+    const ComponentFC = ({ user }: BaseProps) => {
+        return <Component {...pageProps} user={user} />;
+    };
+    return (
+        <SWRConfig
+            value={{
+                fetcher: (url: string) =>
+                    fetch(url).then((response) => response.json()),
+            }}
+        >
+            <SessionProvider session={session}>
+                <Layout FC={ComponentFC} />
+            </SessionProvider>
+        </SWRConfig>
+    );
 }
 export default MyApp;
