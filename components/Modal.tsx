@@ -1,17 +1,50 @@
 import { NextPage } from "next";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import { Dialog, Zoom, Button, Divider } from "@material-ui/core";
+import { useDropzone } from "react-dropzone";
 
 interface IModal {
   open: boolean;
   onClose: () => void;
 }
+
 const enterPost = () => {};
 const modifyPost = () => {};
 const deletePost = () => {};
 
 const Modal: NextPage<IModal> = ({ open, onClose }) => {
+  const [files, setFiles] = useState([]);
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: "image/*",
+    onDrop: (acceptedFiles) => {
+      setFiles(
+        acceptedFiles.map((file) =>
+          Object.assign(file, {
+            preview: URL.createObjectURL(file),
+          })
+        )
+      );
+    },
+  });
+  const thumbs = files.map((file, index) => (
+    <div className="w-full h-full" key={file.name}>
+      <img
+        className="w-full h-full object-cover"
+        style={{ borderBottomLeftRadius: "12px" }}
+        src={file.preview}
+        alt=""
+      />
+    </div>
+  ));
+  useEffect(
+    () => () => {
+      // Make sure to revoke the Object URL to avoid memory leaks
+      files.forEach((file) => URL.revokeObjectURL(file.preview));
+    },
+    [files]
+  );
+
   const [delete1, setDelete1] = useState(false);
   const deletePost1 = () => {
     setDelete1(false);
@@ -28,14 +61,16 @@ const Modal: NextPage<IModal> = ({ open, onClose }) => {
     setModify1(false);
   };
   if (!open) return null;
+
+  // 수정 모달
   if (modify1)
     return ReactDOM.createPortal(
       <>
         <div className="absolute flex h-screen justify-center items-center inset-0 z-10 bg-black bg-opacity-50 backdrop-filter  ">
-          <div className="min-h-screen px-6 w-full min-w-fit  flex flex-col items-center justify-center animate-zoomIn ">
+          <div className="min-h-fit h-full px-6 w-full min-w-fit  flex flex-col items-center justify-center animate-zoomIn ">
             <div
               style={{ borderRadius: "12px" }}
-              className="text-center bg-white w-2/3 "
+              className="text-center bg-white w-2/3 h-2/3 max-w-3xl "
             >
               <div className="flex justify-between">
                 <Button className="py-2 px-3 float-left" onClick={modifyPost2}>
@@ -46,7 +81,30 @@ const Modal: NextPage<IModal> = ({ open, onClose }) => {
                   적용
                 </Button>
               </div>
-              <div className=""></div>
+              <div
+                className=" w-full h-full  bg-white  inline-flex"
+                style={{
+                  borderBottomRightRadius: "12px",
+                  borderBottomLeftRadius: "12px",
+                }}
+              >
+                <div
+                  {...getRootProps({
+                    className: "dropzone w-3/5 h-full overflow-hidden",
+                  })}
+                >
+                  <input {...getInputProps()} />
+                  {thumbs}
+                </div>
+                <div className="w-2/5 ">
+                  <input className=" h-5/6 w-full" placeholder="제목"></input>
+                  <input
+                    className="h-1/6 w-full"
+                    style={{ borderBottomRightRadius: "12px" }}
+                    placeholder="설명"
+                  ></input>
+                </div>
+              </div>
               <Divider />
             </div>
           </div>
@@ -54,6 +112,8 @@ const Modal: NextPage<IModal> = ({ open, onClose }) => {
       </>,
       document.body
     );
+
+  //삭제 모달
   if (delete1)
     return ReactDOM.createPortal(
       <>
