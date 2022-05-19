@@ -252,36 +252,7 @@ const View: NextPage = () => {
                 />
               </h2>
               {/* 수정 삭제로 들어가는 모달 */}
-              <Modal open={isopen} onClose={() => setIsOpen(false)}>
-                <div>
-                  {/* 이 부분 보니 수정 삭제 패턴이 같은거 같아 컴포넌트 형태로 만들면 보기 편해질 듯? */}
-                  <div>
-                    <button onClick={() => setIsOpen2(true)}>수정</button>
-                    <Modal open={isopen2} onClose={() => setIsOpen2(false)}>
-                      <input
-                        type="file"
-                        id="files"
-                        name="files"
-                        multiple
-                      ></input>
-                      <div>
-                        <input placeholder="제목"></input>
-                        <input placeholder="설명"></input>
-                      </div>
-                    </Modal>
-                  </div>
-                  <div>
-                    <button onClick={() => setIsOpen3(true)}>삭제</button>
-                    <Modal open={isopen3} onClose={() => setIsOpen3(false)}>
-                      <div>
-                        <h1>해당 앨범을 삭제하시겠습니까?</h1>
-                        <button onClick={onRemove}>yes</button>/
-                        <button onClick={() => setIsOpen3(false)}>no</button>
-                      </div>
-                    </Modal>
-                  </div>
-                </div>
-              </Modal>
+              <Modal open={isopen} onClose={() => setIsOpen(false)}></Modal>
               <div onClick={() => setIsOpen(true)} className="cursor-pointer">
                 {/* 수정 삭제 들어가는 버튼  */}
                 <svg
@@ -342,12 +313,6 @@ const View: NextPage = () => {
                 </MotionConfig>
               </motion.div>
             </AnimatePresence>
-          </div>
-          <div>
-            {/* 해당 앨범 내부로 들어가는 버튼 */}
-            <Link href="/">
-              <button> hello</button>
-            </Link>
           </div>
         </div>
       </div>
