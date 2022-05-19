@@ -7,10 +7,11 @@ import { cls } from "@libs/client/utils";
 import AnimationText from "@components/animation-text";
 import Link from "next/link";
 import Modal from "@components/modal";
-import { SWRConfig } from "swr";
+import useSWR, { SWRConfig } from "swr";
 import client from "libs/server/client";
 import { getSession } from "next-auth/react";
 import { Album } from "@prisma/client";
+import { ResponseType } from "@libs/server/withHandler";
 
 interface IAlbum {
     id: number;
@@ -18,7 +19,7 @@ interface IAlbum {
     url: string;
 }
 
-interface IPerAlbum extends IAlbum {
+interface IPerAlbum extends Album {
     key: number;
 }
 
@@ -39,45 +40,12 @@ const infoColVariants = {
     },
 };
 
+interface AlbumListResponse extends ResponseType {
+    albums: Album[];
+}
+
 const View: NextPage = () => {
-    const [albums, setAlbums] = useState([
-        { id: 1000, title: "elephant", url: "/assets/elephant-hd-quality.png" },
-        {
-            id: 1001,
-            title: "lighthouse",
-            url: "https://cdn.pixabay.com/photo/2017/06/04/23/17/lighthouse-2372461__340.jpg",
-        },
-        {
-            id: 1002,
-            title: "planet",
-            url: "https://cdn.pixabay.com/photo/2016/09/29/13/08/planet-1702788__340.jpg",
-        },
-        {
-            id: 1003,
-            title: "water",
-            url: "https://cdn.pixabay.com/photo/2016/04/15/04/02/water-1330252__340.jpg",
-        },
-        {
-            id: 1004,
-            title: "sunset",
-            url: "https://cdn.pixabay.com/photo/2018/09/19/23/03/sunset-3689760__340.jpg",
-        },
-        {
-            id: 1005,
-            title: "sunset01",
-            url: "https://cdn.pixabay.com/photo/2016/05/05/02/37/sunset-1373171_960_720.jpg",
-        },
-        {
-            id: 1006,
-            title: "sunset02",
-            url: "https://cdn.pixabay.com/photo/2016/05/05/02/37/sunset-1373171_960_720.jpg",
-        },
-        {
-            id: 1007,
-            title: "sunset03",
-            url: "https://cdn.pixabay.com/photo/2016/05/05/02/37/sunset-1373171_960_720.jpg",
-        },
-    ]);
+    const { data } = useSWR<AlbumListResponse>("/api/albums/me");
 
     const [index, setIndex] = useState(0);
     const [perIndex, setPerIndex] = useState(0);
@@ -88,12 +56,14 @@ const View: NextPage = () => {
     const [isopen2, setIsOpen2] = useState(false);
     const [isopen3, setIsOpen3] = useState(false);
 
+    const albums = data?.albums ? data.albums : [];
+
     const page = Math.min(albums.length - 1, 6);
     const perAlbums: IPerAlbum[] = [];
 
     // 앨범 삭제 기능
     const onRemove = () => {
-        setAlbums(albums.filter((album) => album.id !== perAlbums[index].id));
+        // setAlbums(albums.filter((album) => album.id !== perAlbums[index].id));
     };
 
     if (page) {
@@ -103,6 +73,11 @@ const View: NextPage = () => {
                 key: (perIndex + i) % (page * 2 + 1),
             });
         }
+    } else {
+        perAlbums.push({
+            ...albums[0],
+            key: 0,
+        });
     }
 
     return (
@@ -184,11 +159,15 @@ const View: NextPage = () => {
                                                 i === 0 ? "slider" : ""
                                             )}
                                         >
-                                            <Image
-                                                src={album.url}
-                                                layout="fill"
-                                                alt=""
-                                            />
+                                            {album.imagePath ? (
+                                                <Image
+                                                    src={album.imagePath}
+                                                    layout="fill"
+                                                    alt=""
+                                                />
+                                            ) : (
+                                                <div className="h-full  bg-gray-300" />
+                                            )}
                                         </motion.div>
                                     </div>
                                     <div className="absolute w-full h-1/2 top-[102%] overflow-hidden">
@@ -218,7 +197,11 @@ const View: NextPage = () => {
                                                 maskSize: "3000% 100%",
                                                 WebkitMaskSize: "3000% 100%",
                                                 transform: "rotateX(180deg)",
-                                                backgroundImage: `url(${album.url})`,
+                                                backgroundImage: `url(${
+                                                    album.imagePath
+                                                        ? album.imagePath
+                                                        : null
+                                                })`,
                                                 backgroundSize: "100% 100%",
                                             }}
                                             initial={{
@@ -252,148 +235,157 @@ const View: NextPage = () => {
                     </div>
                 </div>
 
-                <div key={index}>
-                    <div>
-                        <div className="w-full flex justify-between items-center">
-                            <h2 className="text-2xl font-bold">
-                                <AnimationText
-                                    staggerTime={0.1}
-                                    text="Title"
-                                    kind="fading"
-                                    className="text-white"
-                                />
-                            </h2>
-                            {/* 수정 삭제로 들어가는 모달 */}
-                            <Modal
-                                open={isopen}
-                                onClose={() => setIsOpen(false)}
-                            >
-                                <div>
-                                    {/* 이 부분 보니 수정 삭제 패턴이 같은거 같아 컴포넌트 형태로 만들면 보기 편해질 듯? */}
-                                    <div>
-                                        <button
-                                            onClick={() => setIsOpen2(true)}
-                                        >
-                                            수정
-                                        </button>
-                                        <Modal
-                                            open={isopen2}
-                                            onClose={() => setIsOpen2(false)}
-                                        >
-                                            <input
-                                                type="file"
-                                                id="files"
-                                                name="files"
-                                                multiple
-                                            ></input>
-                                            <div>
-                                                <input placeholder="제목"></input>
-                                                <input placeholder="설명"></input>
-                                            </div>
-                                        </Modal>
-                                    </div>
-                                    <div>
-                                        <button
-                                            onClick={() => setIsOpen3(true)}
-                                        >
-                                            삭제
-                                        </button>
-                                        <Modal
-                                            open={isopen3}
-                                            onClose={() => setIsOpen3(false)}
-                                        >
-                                            <div>
-                                                <h1>
-                                                    해당 앨범을
-                                                    삭제하시겠습니까?
-                                                </h1>
-                                                <button onClick={onRemove}>
-                                                    yes
-                                                </button>
-                                                /
-                                                <button
-                                                    onClick={() =>
-                                                        setIsOpen3(false)
-                                                    }
-                                                >
-                                                    no
-                                                </button>
-                                            </div>
-                                        </Modal>
-                                    </div>
-                                </div>
-                            </Modal>
-                            <div
-                                onClick={() => setIsOpen(true)}
-                                className="cursor-pointer"
-                            >
-                                {/* 수정 삭제 들어가는 버튼  */}
-                                <svg
-                                    aria-label="옵션 더 보기"
-                                    className="_8-yf5 "
-                                    color="#fff"
-                                    fill="#fff"
-                                    height="24"
-                                    role="img"
-                                    viewBox="0 0 24 24"
-                                    width="24"
+                {albums.length && (
+                    <div key={index}>
+                        <div>
+                            <div className="w-full flex justify-between items-center">
+                                <h2 className="text-2xl font-bold">
+                                    <AnimationText
+                                        staggerTime={0.1}
+                                        text={albums[index].title}
+                                        kind="fading"
+                                        className="text-white"
+                                    />
+                                </h2>
+                                {/* 수정 삭제로 들어가는 모달 */}
+                                <Modal
+                                    open={isopen}
+                                    onClose={() => setIsOpen(false)}
                                 >
-                                    <circle cx="12" cy="12" r="1.5"></circle>
-                                    <circle cx="6" cy="12" r="1.5"></circle>
-                                    <circle cx="18" cy="12" r="1.5"></circle>
-                                </svg>
-                            </div>
-                        </div>
-                        <AnimatePresence>
-                            <motion.div
-                                className="w-full space-y-4"
-                                initial="hidden"
-                                animate="visible"
-                                variants={infoWrapperVariants}
-                            >
-                                <MotionConfig
-                                    transition={{
-                                        default: {
-                                            ease: "easeInOut",
-                                            duration: 0.5,
-                                        },
-                                    }}
-                                >
-                                    <motion.div
-                                        className="w-full flex space-x-2 text-gray-500"
-                                        variants={infoColVariants}
-                                    >
-                                        <div className="whitespace-nowrap">
-                                            {new Date().toDateString()}
+                                    <div>
+                                        {/* 이 부분 보니 수정 삭제 패턴이 같은거 같아 컴포넌트 형태로 만들면 보기 편해질 듯? */}
+                                        <div>
+                                            <button
+                                                onClick={() => setIsOpen2(true)}
+                                            >
+                                                수정
+                                            </button>
+                                            <Modal
+                                                open={isopen2}
+                                                onClose={() =>
+                                                    setIsOpen2(false)
+                                                }
+                                            >
+                                                <input
+                                                    type="file"
+                                                    id="files"
+                                                    name="files"
+                                                    multiple
+                                                ></input>
+                                                <div>
+                                                    <input placeholder="제목"></input>
+                                                    <input placeholder="설명"></input>
+                                                </div>
+                                            </Modal>
                                         </div>
-                                        <span>/</span>
-                                        <div>#태그 #태그 #태그</div>
-                                    </motion.div>
+                                        <div>
+                                            <button
+                                                onClick={() => setIsOpen3(true)}
+                                            >
+                                                삭제
+                                            </button>
+                                            <Modal
+                                                open={isopen3}
+                                                onClose={() =>
+                                                    setIsOpen3(false)
+                                                }
+                                            >
+                                                <div>
+                                                    <h1>
+                                                        해당 앨범을
+                                                        삭제하시겠습니까?
+                                                    </h1>
+                                                    <button onClick={onRemove}>
+                                                        yes
+                                                    </button>
+                                                    /
+                                                    <button
+                                                        onClick={() =>
+                                                            setIsOpen3(false)
+                                                        }
+                                                    >
+                                                        no
+                                                    </button>
+                                                </div>
+                                            </Modal>
+                                        </div>
+                                    </div>
+                                </Modal>
+                                <div
+                                    onClick={() => setIsOpen(true)}
+                                    className="cursor-pointer"
+                                >
+                                    {/* 수정 삭제 들어가는 버튼  */}
+                                    <svg
+                                        aria-label="옵션 더 보기"
+                                        className="_8-yf5 "
+                                        color="#fff"
+                                        fill="#fff"
+                                        height="24"
+                                        role="img"
+                                        viewBox="0 0 24 24"
+                                        width="24"
+                                    >
+                                        <circle
+                                            cx="12"
+                                            cy="12"
+                                            r="1.5"
+                                        ></circle>
+                                        <circle cx="6" cy="12" r="1.5"></circle>
+                                        <circle
+                                            cx="18"
+                                            cy="12"
+                                            r="1.5"
+                                        ></circle>
+                                    </svg>
+                                </div>
+                            </div>
+                            <AnimatePresence>
+                                <motion.div
+                                    className="w-full space-y-4"
+                                    initial="hidden"
+                                    animate="visible"
+                                    variants={infoWrapperVariants}
+                                >
+                                    <MotionConfig
+                                        transition={{
+                                            default: {
+                                                ease: "easeInOut",
+                                                duration: 0.5,
+                                            },
+                                        }}
+                                    >
+                                        <motion.div
+                                            className="w-full flex space-x-2 text-gray-500"
+                                            variants={infoColVariants}
+                                        >
+                                            <div className="whitespace-nowrap">
+                                                {new Date().toDateString()}
+                                            </div>
+                                            <span>/</span>
+                                            <div>#태그 #태그 #태그</div>
+                                        </motion.div>
 
-                                    <motion.textarea
-                                        readOnly
-                                        className="w-full h-36 text-white bg-transparent resize-none overflow-hidden focus:overflow-auto focus:outline-none"
-                                        variants={infoColVariants}
-                                        value="Lorem ipsum dolor sit amet
-                                            consectetur adipisicing elit.
-                                            Dignissimos optio fugiat reiciendis
-                                            quam. Error debitis qui numquam
-                                            ducimus corporis nihil distinctio
-                                            necessitatibus iste aperiam? Minus
-                                            exercitationem distinctio natus
-                                            excepturi autem."
-                                    ></motion.textarea>
-                                </MotionConfig>
-                            </motion.div>
-                        </AnimatePresence>
+                                        <motion.textarea
+                                            readOnly
+                                            className="w-full h-36 text-white bg-transparent resize-none overflow-hidden focus:overflow-auto focus:outline-none"
+                                            variants={infoColVariants}
+                                            value={
+                                                albums[index].description + ""
+                                            }
+                                        ></motion.textarea>
+                                    </MotionConfig>
+                                </motion.div>
+                            </AnimatePresence>
+                        </div>
+                        <div>
+                            {/* 해당 앨범 내부로 들어가는 버튼 */}
+                            <Link href="/">
+                                <button> hello</button>
+                            </Link>
+                        </div>
                     </div>
-                    <div>
-                        {/* 해당 앨범 내부로 들어가는 버튼 */}
-                        <Link href="/">
-                            <button> hello</button>
-                        </Link>
-                    </div>
-                </div>
+                )}
             </div>
             <motion.div
                 className="absolute bottom-0"

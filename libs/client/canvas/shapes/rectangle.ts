@@ -12,6 +12,8 @@ import Matter, {
     Vector,
 } from "matter-js";
 import p5Types from "p5";
+import { Album } from "@prisma/client";
+import { throws } from "assert";
 
 const DEFAULT_CATEGORY = 0x0001;
 const RECTANGLE_CATEGORY = 0x0002;
@@ -30,7 +32,7 @@ class Rectangle extends Rect {
     bottomRight!: Point;
     bottomLeft!: Point;
     points: Point[] = [];
-    angle: number;
+    velocity: Vector;
     constructor(
         p5: p5InstanceExtensions,
         x: number,
@@ -74,9 +76,8 @@ class Rectangle extends Rect {
         this.dragOffset = undefined;
         this.isDragged = false;
         this.fillColor = p5.color(80);
-        this.angle = 0;
         World.add(world, this.body);
-        // World.add(world, constraint);
+        this.velocity = { x: 0, y: 0 };
     }
 
     setSize(newSize: number) {
@@ -132,6 +133,10 @@ class Rectangle extends Rect {
                     p5.mouseX - this.body.position.x,
                     p5.mouseY - this.body.position.y
                 );
+
+                if (this.body.velocity.x || this.body.velocity.y) {
+                    Body.setVelocity(this.body, { x: 0, y: 0 });
+                }
                 return true;
             }
         }
@@ -142,43 +147,23 @@ class Rectangle extends Rect {
         const pointDragged = this.points.find((p) => p.isBeingDragged);
 
         if (pointDragged) {
-            const originPos = { x: pointDragged.x, y: pointDragged.y };
-            const pos = this.body.position;
+            // const originPos = { x: pointDragged.x, y: pointDragged.y };
+            // const pos = this.body.position;
             pointDragged.set(p5.mouseX, p5.mouseY);
 
-            // if (this.topLeft == pointDragged) {
-            //     if (this.topLeft.x == originPos.x) {
-            //         this.bottomLeft.x = pointDragged.x;
-            //         this.topRight.y = pointDragged.y;
-            //     } else {
-            //         this.bottomLeft.x = pointDragged.y;
-            //         this.topRight.y = pointDragged.x;
-            //     }
-            // } else if (this.topRight == pointDragged) {
-            //     if (this.bottomRight.x == originPos.x) {
-            //         this.bottomRight.x = pointDragged.x;
-            //         this.topLeft.y = pointDragged.y;
-            //     } else {
-            //         this.bottomRight.x = pointDragged.y;
-            //         this.topLeft.y = pointDragged.x;
-            //     }
-            // } else if (this.bottomRight == pointDragged) {
-            //     if (this.topRight.x == originPos.x) {
-            //         this.topRight.x = pointDragged.x;
-            //         this.bottomLeft.y = pointDragged.y;
-            //     } else {
-            //         this.topRight.x = pointDragged.y;
-            //         this.bottomLeft.y = pointDragged.x;
-            //     }
-            // } else if (this.bottomLeft == pointDragged) {
-            //     if (this.topLeft.x == originPos.x) {
-            //         this.topLeft.x = pointDragged.x;
-            //         this.bottomRight.y = pointDragged.y;
-            //     } else {
-            //         this.topLeft.x = pointDragged.y;
-            //         this.bottomRight.y = pointDragged.x;
-            //     }
-            // }
+            if (this.topLeft == pointDragged) {
+                this.bottomLeft.x = pointDragged.x;
+                this.topRight.y = pointDragged.y;
+            } else if (this.topRight == pointDragged) {
+                this.bottomRight.x = pointDragged.x;
+                this.topLeft.y = pointDragged.y;
+            } else if (this.bottomRight == pointDragged) {
+                this.topRight.x = pointDragged.x;
+                this.bottomLeft.y = pointDragged.y;
+            } else if (this.bottomLeft == pointDragged) {
+                this.topLeft.x = pointDragged.x;
+                this.bottomRight.y = pointDragged.y;
+            }
 
             const vertices = [
                 this.bottomRight,
@@ -200,31 +185,25 @@ class Rectangle extends Rect {
                     this.body
                 )
             );
-        }
-        // else {
-        //     this._x = p5.mouseX - this.dragOffset!.x;
-        //     this._y = p5.mouseY - this.dragOffset!.y;
+            Body.setInertia(this.body, Infinity);
+        } else {
+            this._x = p5.mouseX - this.dragOffset!.x;
+            this._y = p5.mouseY - this.dragOffset!.y;
 
-        //     Body.setPosition(this.body, { x: this._x, y: this._y });
-        // }
+            this.velocity.x = this._x - this.body.position.x;
+            this.velocity.y = this._y - this.body.position.y;
+            Body.setPosition(this.body, { x: this._x, y: this._y });
+        }
     }
 
-    handleMouseReleased(
-        p5: p5InstanceExtensions,
-        mConstraint: Matter.MouseConstraint
-    ) {
+    handleMouseReleased(p5: p5InstanceExtensions) {
         this.points.forEach((p) => {
             p.isBeingDragged = false;
         });
         this.isDragged = false;
-        // const force = 2;
-        // const deltaVector = Vector.sub(
-        //     { x: p5.mouseX, y: p5.mouseY },
-        //     this.body.position
-        // );
-        // const normalizedDelta = Vector.normalise(deltaVector);
-        // const forceVector = Vector.mult(normalizedDelta, force);
-        // Body.applyForce(this.body, this.body.position, forceVector);
+
+        Body.setVelocity(this.body, this.velocity);
+        this.velocity.x = this.velocity.y = 0;
     }
 
     draw(p5: p5InstanceExtensions, img: p5Types.Image) {
