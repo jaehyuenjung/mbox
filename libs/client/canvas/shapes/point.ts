@@ -9,7 +9,7 @@ class Point {
     isDragged: boolean;
     constructor(p5: p5InstanceExtensions, x: number, y: number) {
         this.pos = p5.createVector(x, y);
-        this.radius = 20;
+        this.radius = 10;
         this.isBeingDragged = false;
         this.dragEnabled = false;
         this.isDragged = false;

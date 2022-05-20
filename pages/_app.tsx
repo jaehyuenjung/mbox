@@ -6,7 +6,7 @@ import React from "react";
 import Layout, { BaseProps } from "@components/layout";
 import { createPortal } from "react-dom";
 import { NextPage } from "next";
-
+import NavBar from "@components/nav-bar";
 function MyApp({ Component, pageProps: { session, ...pageProps } }: AppProps) {
     const ComponentFC = ({ user }: BaseProps) => {
         return <Component {...pageProps} user={user} />;
