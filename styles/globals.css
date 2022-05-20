@@ -130,3 +130,29 @@ input:checked + .toggleslider::before{
 .toggleslider.round::before{
   border-radius: 50%;
 }
+
+#imgscroll::-webkit-scrollbar{
+  width:8px;
+}
+
+#imgscroll::-webkit-scrollbar-thumb{
+  background-color: rgba(0,0,0,0.5);
+  border-radius: 10px;
+}
+
+#imgscroll::-webkit-scrollbar-track{
+  background-color: rgb(241 245 249 / var(--tw-bg-opacity));
+}
+
+#pagescroll::-webkit-scrollbar{
+  width:8px;
+}
+
+#pagescroll::-webkit-scrollbar-thumb{
+  background-color: rgba(0,0,0,0.5);
+  border-radius: 10px;
+}
+
+#pagescroll::-webkit-scrollbar-track{
+  background-color: rgb(241 245 249 / var(--tw-bg-opacity));
+}
