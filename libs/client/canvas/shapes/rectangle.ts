@@ -31,12 +31,16 @@ class Rectangle extends Rect {
     bottomLeft!: Point;
     points: Point[] = [];
     angle: number;
+    title:string;
+    context:string;
     constructor(
         p5: p5InstanceExtensions,
         x: number,
         y: number,
         p_nWidth: number,
         p_nHeight: number,
+        p_title:string,
+        p_context:string,
         world: Matter.World
     ) {
         super(x, y, p_nWidth, p_nHeight);
@@ -68,6 +72,8 @@ class Rectangle extends Rect {
 
         Body.setInertia(this.body, Infinity);
 
+        this.title = p_title;
+        this.context = p_context;
         this.dragEnabled = false;
         this.editEnabled = false;
         this.dragArea = this;

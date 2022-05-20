@@ -29,9 +29,9 @@ const PHOTO_CATEGORY = 0x0004;
 const BOUNDARY_CATEGORY = 0x0005;
 
 const albumImages: p5Types.Image[] = [];
-const albumURLs = [
-    "https://cdn.pixabay.com/photo/2018/01/14/23/12/nature-3082832__480.jpg",
-];
+// const albumURLs = [
+//     "https://cdn.pixabay.com/photo/2018/01/14/23/12/nature-3082832__480.jpg",
+// ];
 
 const grounds: Boundary[] = [];
 const shapes: Rectangle[] = [];
@@ -42,7 +42,7 @@ let mConstraint: Matter.MouseConstraint;
 let camera: p5Types.Camera;
 let font: p5Types.Font;
 
-const Canvas: NextPage = () => {
+const Canvas: NextPage = ({img}) => {
     const containerRef = useRef<HTMLDivElement>(null);
     const [width, setWidth] = useState(0);
     const [height, setHeight] = useState(0);
@@ -53,15 +53,16 @@ const Canvas: NextPage = () => {
     const [toltipxy, settoltipxy] = useState([0,0]);
     const [p5_title, setp5_title] =useState('');
     const [p5_context, setp5_context] =useState('');
+    const [albumURLs,setalbumURLs] = useState([img]);
     // const [imgsrc, setimgsrc]= useState('/noimage.jpg');
     // const [sidemenuopen, setsidemenuopen] = useState(false);
-
+    console.log(img)
     useEffect(() => {
         const setClientPageSize = () => {
             if (containerRef?.current) {
                 const container = containerRef.current;
-                setWidth(container.clientWidth);
-                setHeight(container.clientHeight);
+                setWidth(500);
+                setHeight(300);
             }
         };
         setClientPageSize();
