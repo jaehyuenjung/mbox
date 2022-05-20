@@ -3,13 +3,15 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import logo from "../public/vercel.svg";
-
+import CreateAlbum from "./create-album";
+import Modal from "./Modal";
 export default function NavBar() {
   const router = useRouter();
   const isAuth = router.pathname.includes("auth");
-
   // 해당 페이지 url 복사
   const [copied, setCopied] = useState(false);
+  const [isopen, setIsOpen] = useState(false);
+
   function copy() {
     const el = document.createElement("input");
     el.value = window.location.href;
@@ -42,7 +44,11 @@ export default function NavBar() {
             <button onClick={copy}>{!copied ? "url 복사" : "복사 완료"}</button>
 
             {/* 앨범 생성 */}
-            <button onClick={onCreate}> 앨범 생성</button>
+            <button onClick={() => setIsOpen(true)}> 앨범 생성</button>
+            <CreateAlbum
+              open={isopen}
+              onClose={() => setIsOpen(false)}
+            ></CreateAlbum>
           </div>
         </>
       )}
