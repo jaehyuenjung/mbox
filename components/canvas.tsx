@@ -96,7 +96,8 @@ const Canvas: NextPage = () => {
             .createCanvas(width, height, p5.WEBGL)
             .parent(canvasParentRef);
 
-        const e = Engine.create();
+        const e = Engine.create(canvas.elt);
+
         e.gravity.y = 0;
         const w = e.world;
         P5JsSettings.init(p5);
@@ -181,6 +182,7 @@ const Canvas: NextPage = () => {
                     draw={draw}
                     // windowResized={(p5) => {
                     //     p5.resizeCanvas(width, height, true);
+
                     //     // p5.perspective(p5.PI / 3.0, width / height, 1, 1000);
                     // }}
                     mousePressed={(p5) => {
