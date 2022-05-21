@@ -294,9 +294,11 @@ const View: NextPage = () => {
                     className="w-full items-center text-center"
                     variants={infoColVariants}
                   >
-                    <button className="bg-gray-300 hover:bg-gray-400 text-gray-800  font-bold py-2 px-4 rounded-full">
-                      구경하기
-                    </button>
+                    <Link href="/map">
+                      <button className="bg-gray-300 hover:bg-gray-400 text-gray-800  font-bold py-2 px-4 rounded-full">
+                        구경하기
+                      </button>
+                    </Link>
                   </motion.div>
                 </MotionConfig>
               </motion.div>

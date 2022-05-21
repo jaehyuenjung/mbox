@@ -323,9 +323,11 @@ const Home: NextPage<BaseProps> = ({ user }) => {
                     className="w-full items-center text-center"
                     variants={infoColVariants}
                   >
-                    <button className="bg-gray-300 hover:bg-gray-400 text-gray-800  font-bold py-2 px-4 rounded-full">
-                      앨범 내부 편집
-                    </button>
+                    <Link href={"inneredit"}>
+                      <button className="bg-gray-300 hover:bg-gray-400 text-gray-800  font-bold py-2 px-4 rounded-full">
+                        앨범 내부 편집
+                      </button>
+                    </Link>
                   </motion.div>
                 </MotionConfig>
               </motion.div>

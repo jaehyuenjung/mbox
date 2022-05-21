@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import logo from "../public/vercel.svg";
 import { BaseProps } from "./layout";
 import Modal from "./Modal";
+import Profile from "./profile";
 
 const NavBar: NextPage<BaseProps> = ({ user }) => {
   const router = useRouter();
@@ -55,9 +56,24 @@ const NavBar: NextPage<BaseProps> = ({ user }) => {
           {/* 기능 고민중.. */}
           <input type="text" placeholder="검색" className="mx-auto"></input>
 
-          <div className="absolute right-0">
+          <div className="absolute right-0 w-10 ">
             {/* 현재 페이지 url 복사 */}
-            <button onClick={copy}> 프로필 보기</button>
+            <Link href="/profile">
+              <div className="">
+                <div className=" max-h-8 relative w-20 aspect-square rounded-full overflow-hidden ">
+                  {user?.image ? (
+                    <Image
+                      src={user.image}
+                      className="object-fill"
+                      layout="fill"
+                      alt="avatar"
+                    />
+                  ) : (
+                    <div className="h-full rounded-full bg-gray-300" />
+                  )}
+                </div>
+              </div>
+            </Link>
           </div>
         </>
       )}
