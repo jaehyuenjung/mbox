@@ -13,6 +13,7 @@ import { getSession } from "next-auth/react";
 import { Album } from "@prisma/client";
 import CreateAlbum from "components/create-album";
 import { Card } from "@material-ui/core";
+import { BaseProps } from "@components/layout";
 
 interface IAlbum {
   id: number;

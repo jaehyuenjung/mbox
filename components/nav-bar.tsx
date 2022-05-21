@@ -55,17 +55,50 @@ const NavBar: NextPage<BaseProps> = ({ user }) => {
       {!isAuthOrOther && (
         <>
           {/* 기능 고민중.. */}
-          <input
-            type="text"
-            placeholder="검색"
-            className="mx-auto bg-slate-300 rounded-lg"
-          ></input>
-
+          <div className="mx-auto relative  ">
+            <div className="absolute mx-40 my-4">
+              <svg
+                aria-label="검색"
+                className="_8-yf5 "
+                color="#8e8e8e"
+                fill="#8e8e8e"
+                height="16"
+                role="img"
+                viewBox="0 0 24 24"
+                width="16"
+              >
+                <path
+                  d="M19 10.5A8.5 8.5 0 1110.5 2a8.5 8.5 0 018.5 8.5z"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                ></path>
+                <line
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  x1="16.511"
+                  x2="22"
+                  y1="16.511"
+                  y2="22"
+                ></line>
+              </svg>
+            </div>
+            <input
+              type="text"
+              placeholder="검색"
+              className="w-full my-3  focus:outline-none bg-slate-300 rounded-lg"
+            ></input>
+          </div>
           <div className="absolute right-0 w-10 ">
             {/* 현재 페이지 url 복사 */}
             <Link href="/profile">
               <div className="">
-                <div className=" max-h-8 relative w-20 aspect-square rounded-full overflow-hidden ">
+                <div className=" max-h-8 relative w-20 my-2 aspect-square rounded-full overflow-hidden ">
                   {user?.image ? (
                     <Image
                       src={user.image}

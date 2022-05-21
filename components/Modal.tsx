@@ -113,18 +113,18 @@ const Modal: NextPage<IModal> = ({ open, onClose }) => {
           <div className="min-h-screen px-6 w-2/3 max-w-md  flex flex-col items-center justify-center animate-zoomIn ">
             <div
               style={{ borderRadius: "12px" }}
-              className="text-center bg-white w-full "
+              className="flex items-center  text-center bg-white w-full "
             >
-              <Button className="py-2 px-3 float-left" onClick={Copy2}>
-                취소
-              </Button>
-              <QRCodeCanvas
-                id="qrCode"
-                value="https://reactjs.org/"
-                size={size}
-              />
-              <div className="flex justify-center items-center space-x-3 mt-3">
-                <div
+              <div className="">
+                <QRCodeCanvas
+                  id="qrCode"
+                  value="https://reactjs.org/"
+                  size={size}
+                />
+              </div>
+
+              <div className="w-full">
+                <Button
                   onClick={() => {
                     const qrCode = document.getElementById(
                       "qrCode"
@@ -147,11 +147,12 @@ const Modal: NextPage<IModal> = ({ open, onClose }) => {
                       });
                     } else alert("Copy Fail!");
                   }}
-                  className="px-3 py-2 bg-gray-500 rounded-md cursor-pointer"
+                  className="py-2 px-3 w-full"
                 >
                   QR CODE COPY
-                </div>
-                <div
+                </Button>
+                <Divider />
+                <Button
                   onClick={async () => {
                     try {
                       await navigator.clipboard.writeText(
@@ -162,10 +163,14 @@ const Modal: NextPage<IModal> = ({ open, onClose }) => {
                       alert("Copy Fail!");
                     }
                   }}
-                  className="px-3 py-2 bg-gray-500 rounded-md cursor-pointer"
+                  className="py-2 px-3 w-full"
                 >
                   URL COPY
-                </div>
+                </Button>
+                <Divider />
+                <Button className="py-2 px-3 w-full" onClick={Copy2}>
+                  취소
+                </Button>
               </div>
             </div>
           </div>
@@ -184,13 +189,21 @@ const Modal: NextPage<IModal> = ({ open, onClose }) => {
               className="text-center bg-white w-2/3 h-2/3 max-w-3xl "
             >
               <div className="flex justify-between">
-                <Button className="py-2 px-3 float-left" onClick={modifyPost2}>
+                <button
+                  className="py-2 px-3 float-left text-lg"
+                  onClick={modifyPost2}
+                >
                   취소
-                </Button>
-                <div className="py-2 px-3 text-center">앨범 정보 수정</div>
-                <Button className="py-2 px-3 float-right" onClick={modifyPost2}>
+                </button>
+                <div className="py-2 px-3 text-center text-lg">
+                  앨범 정보 수정
+                </div>
+                <button
+                  className="py-2 px-3 float-right text-lg text-blue-600"
+                  onClick={modifyPost2}
+                >
                   적용
-                </Button>
+                </button>
               </div>
               <Divider />
 
@@ -245,14 +258,21 @@ const Modal: NextPage<IModal> = ({ open, onClose }) => {
                     className=" h-1/6 w-full p-4 resize-none focus:outline-none"
                     placeholder="앨범 제목 입력"
                   ></textarea>
+                  <Divider />
+
                   <textarea
-                    className="h-4/6 w-full p-4 resize-none focus:outline-none"
+                    className="h-3/6 w-full p-4 resize-none focus:outline-none"
                     style={{ borderBottomRightRadius: "12px" }}
                     placeholder="앨범 설명 입력"
                   ></textarea>
+                  <Divider />
+                  <input
+                    placeholder="비밀번호 입력"
+                    className="h-1/6 w-full p-4 resize-none focus:outline-none"
+                    type="password"
+                  ></input>
                 </div>
               </div>
-              <Divider />
             </div>
           </div>
         </div>
@@ -271,7 +291,11 @@ const Modal: NextPage<IModal> = ({ open, onClose }) => {
               className="text-center bg-white w-full "
             >
               <h1>해당 앨범을 삭제할까요?</h1>
-              <Button className="py-2 px-3 w-full" onClick={deletePost1}>
+              <Button
+                className="py-2 px-3 w-full "
+                color="secondary"
+                onClick={deletePost1}
+              >
                 삭제
               </Button>
               <Divider />
@@ -304,6 +328,7 @@ const Modal: NextPage<IModal> = ({ open, onClose }) => {
             <Button
               className="py-2 px-3 w-full"
               onClick={() => setDelete1(true)}
+              color="secondary"
             >
               삭제
             </Button>
