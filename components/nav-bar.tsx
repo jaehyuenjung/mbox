@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { QRCodeCanvas } from "qrcode.react";
 import { useEffect, useState } from "react";
-import logo from "../public/vercel.svg";
+import logo from "../public/favicon/apple-icon-60x60.png";
 import { BaseProps } from "./layout";
 import Modal from "./modal";
 
@@ -36,17 +36,13 @@ const NavBar: NextPage<BaseProps> = ({ user }) => {
         }
     }, []);
 
-    // 해당 페이지 url 복사
-    const [copied, setCopied] = useState(false);
     function copy() {
         setOpen(true);
     }
-    //앨범 생성
-    const onCreate = () => {};
     return (
-        <nav className="fixed w-full flex justify-between top-0">
+        <nav className="fixed w-full flex justify-between items-center left-0 top-0 ">
             <Link href="/view">
-                <a className="absolute left-0 w-10 aspect-square">
+                <a className="relative w-10 aspect-square">
                     <Image
                         src={logo}
                         className="object-fill"
@@ -55,26 +51,7 @@ const NavBar: NextPage<BaseProps> = ({ user }) => {
                     />
                 </a>
             </Link>
-            {!isAuthOrOther && (
-                <>
-                    {/* 기능 고민중.. */}
-                    <input
-                        type="text"
-                        placeholder="검색"
-                        className="mx-auto"
-                    ></input>
 
-                    <div className="absolute right-0">
-                        {/* 현재 페이지 url 복사 */}
-                        <button onClick={copy}>
-                            {!copied ? "url 복사" : "복사 완료"}
-                        </button>
-
-                        {/* 앨범 생성 */}
-                        <button onClick={onCreate}> 앨범 생성</button>
-                    </div>
-                </>
-            )}
             <Modal open={open} onClose={() => setOpen(false)}>
                 <QRCodeCanvas
                     id="qrCode"

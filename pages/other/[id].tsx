@@ -1,5 +1,10 @@
 import { AnimatePresence, MotionConfig } from "framer-motion";
-import { NextPage, NextPageContext } from "next";
+import {
+    GetStaticPaths,
+    GetStaticProps,
+    NextPage,
+    NextPageContext,
+} from "next";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import Image from "next/image";
@@ -40,31 +45,17 @@ const infoColVariants = {
     },
 };
 
-interface AlbumListResponse extends ResponseType {
+interface HomeProps {
     albums: Album[];
 }
 
-const View: NextPage = () => {
-    const { data } = useSWR<AlbumListResponse>("/api/albums/me");
-
+const Home: NextPage<HomeProps> = ({ albums }) => {
     const [index, setIndex] = useState(0);
     const [perIndex, setPerIndex] = useState(0);
     const [delay, setDelay] = useState(false);
 
-    const [isopen, setIsOpen] = useState(false);
-    const [isopen1, setIsOpen1] = useState(false);
-    const [isopen2, setIsOpen2] = useState(false);
-    const [isopen3, setIsOpen3] = useState(false);
-
-    const albums = data?.albums ? data.albums : [];
-
     const page = Math.min(albums.length - 1, 6);
     const perAlbums: IPerAlbum[] = [];
-
-    // 앨범 삭제 기능
-    const onRemove = () => {
-        // setAlbums(albums.filter((album) => album.id !== perAlbums[index].id));
-    };
 
     if (page) {
         for (let i = 0; i < page; i++) {
@@ -187,11 +178,11 @@ const View: NextPage = () => {
                                             style={{
                                                 maskImage:
                                                     i == 0
-                                                        ? "url(assets/sprites/slider-sprite.png)"
+                                                        ? "url(/assets/sprites/slider-sprite.png)"
                                                         : "",
                                                 WebkitMaskImage:
                                                     i == 0
-                                                        ? "url(assets/sprites/slider-sprite.png)"
+                                                        ? "url(/assets/sprites/slider-sprite.png)"
                                                         : "",
 
                                                 maskSize: "3000% 100%",
@@ -247,98 +238,6 @@ const View: NextPage = () => {
                                         className="text-white"
                                     />
                                 </h2>
-                                {/* 수정 삭제로 들어가는 모달 */}
-                                <Modal
-                                    open={isopen}
-                                    onClose={() => setIsOpen(false)}
-                                >
-                                    <div>
-                                        {/* 이 부분 보니 수정 삭제 패턴이 같은거 같아 컴포넌트 형태로 만들면 보기 편해질 듯? */}
-                                        <div>
-                                            <button
-                                                onClick={() => setIsOpen2(true)}
-                                            >
-                                                수정
-                                            </button>
-                                            <Modal
-                                                open={isopen2}
-                                                onClose={() =>
-                                                    setIsOpen2(false)
-                                                }
-                                            >
-                                                <input
-                                                    type="file"
-                                                    id="files"
-                                                    name="files"
-                                                    multiple
-                                                ></input>
-                                                <div>
-                                                    <input placeholder="제목"></input>
-                                                    <input placeholder="설명"></input>
-                                                </div>
-                                            </Modal>
-                                        </div>
-                                        <div>
-                                            <button
-                                                onClick={() => setIsOpen3(true)}
-                                            >
-                                                삭제
-                                            </button>
-                                            <Modal
-                                                open={isopen3}
-                                                onClose={() =>
-                                                    setIsOpen3(false)
-                                                }
-                                            >
-                                                <div>
-                                                    <h1>
-                                                        해당 앨범을
-                                                        삭제하시겠습니까?
-                                                    </h1>
-                                                    <button onClick={onRemove}>
-                                                        yes
-                                                    </button>
-                                                    /
-                                                    <button
-                                                        onClick={() =>
-                                                            setIsOpen3(false)
-                                                        }
-                                                    >
-                                                        no
-                                                    </button>
-                                                </div>
-                                            </Modal>
-                                        </div>
-                                    </div>
-                                </Modal>
-                                <div
-                                    onClick={() => setIsOpen(true)}
-                                    className="cursor-pointer"
-                                >
-                                    {/* 수정 삭제 들어가는 버튼  */}
-                                    <svg
-                                        aria-label="옵션 더 보기"
-                                        className="_8-yf5 "
-                                        color="#fff"
-                                        fill="#fff"
-                                        height="24"
-                                        role="img"
-                                        viewBox="0 0 24 24"
-                                        width="24"
-                                    >
-                                        <circle
-                                            cx="12"
-                                            cy="12"
-                                            r="1.5"
-                                        ></circle>
-                                        <circle cx="6" cy="12" r="1.5"></circle>
-                                        <circle
-                                            cx="18"
-                                            cy="12"
-                                            r="1.5"
-                                        ></circle>
-                                    </svg>
-                                </div>
                             </div>
                             <AnimatePresence>
                                 <motion.div
@@ -433,37 +332,42 @@ const View: NextPage = () => {
     );
 };
 
-interface IPageProps {
-    albums: Album[];
-}
-
-const Page: NextPage<IPageProps> = ({ albums }) => {
-    return (
-        <SWRConfig
-            value={{
-                fallback: { "/api/albums/me": { ok: true, albums } },
-            }}
-        >
-            <View />
-        </SWRConfig>
-    );
+export const getStaticPaths: GetStaticPaths = () => {
+    return {
+        paths: [],
+        fallback: "blocking",
+    };
 };
 
-export async function getServerSideProps({ req }: NextPageContext) {
-    const session = await getSession({ req });
-    if (session) {
-        const albums = await client.album.findMany({
-            where: { userId: session.user.id },
-        });
-        return { props: { albums: JSON.parse(JSON.stringify(albums)) } };
+export const getStaticProps: GetStaticProps = async (ctx) => {
+    if (!ctx.params?.id) {
+        return {
+            notFound: true,
+        };
     }
-    return {
-        redirect: {
-            permanent: false,
-            destination: "/auth/enter",
-        },
-        props: {},
-    };
-}
 
-export default Page;
+    const isExist = await client.user.findUnique({
+        where: { id: String(ctx.params.id) },
+    });
+
+    if (!isExist) {
+        return {
+            notFound: true,
+        };
+    }
+
+    const albums = await client.album.findMany({
+        where: {
+            user: isExist,
+        },
+    });
+
+    return {
+        props: {
+            albums: JSON.parse(JSON.stringify(albums)),
+        },
+        revalidate: 60,
+    };
+};
+
+export default Home;

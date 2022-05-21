@@ -1,4 +1,4 @@
-import { BaseProps } from "@components/layout";
+import { AnimatePresence, motion } from "framer-motion";
 import Rectangle from "@libs/client/canvas/shapes/rectangle";
 import P5JsSettings from "@libs/client/canvas/utils/p5js_settings";
 import type { NextPage } from "next";
@@ -19,22 +19,18 @@ import {
 import Boundary from "@libs/client/canvas/shapes/boundary";
 import React from "react";
 
-// import decomp from "poly-decomp";
-// window.decomp = decomp;
-
-const DEFAULT_CATEGORY = 0x0001;
-const RECTANGLE_CATEGORY = 0x0002;
-const POINT_CATEGORY = 0x0003;
-const PHOTO_CATEGORY = 0x0004;
-const BOUNDARY_CATEGORY = 0x0005;
-
 let albumImages: p5Types.Image[] = [];
 
 const grounds: Boundary[] = [];
 let shapes: Rectangle[] = [];
 let font: p5Types.Font;
 
-const Canvas: NextPage = () => {
+interface CanvasProps {
+    width: number;
+    height: number;
+}
+
+const Canvas: NextPage<CanvasProps> = ({ width, height }) => {
     const [photoURL, setPhotoURL] = useState<string[]>([
         "https://cdn.pixabay.com/photo/2018/01/14/23/12/nature-3082832__480.jpg",
         "https://cdn.pixabay.com/photo/2017/08/30/01/05/milky-way-2695569__340.jpg",
@@ -53,31 +49,12 @@ const Canvas: NextPage = () => {
             shapes.push(rectToDrag);
         }
     };
-    const containerRef = useRef<HTMLDivElement>(null);
     const [engine, setEngine] = useState<Engine>();
     const [world, setWorld] = useState<World>();
-    const [width, setWidth] = useState(0);
-    const [height, setHeight] = useState(0);
     const [P5, setP5] = useState<p5Types>();
     const [isHover, setIsHover] = useState(false);
-    const [hoverX, setHoverX] = useState(-100);
-    const [hoverY, setHoverY] = useState(-100);
-
-    useEffect(() => {
-        const setClientPageSize = () => {
-            if (containerRef?.current) {
-                const container = containerRef.current;
-                setWidth(container.clientWidth);
-                setHeight(container.clientHeight);
-            }
-        };
-        setClientPageSize();
-
-        // window.addEventListener("resize", setClientPageSize);
-        return () => {
-            // window.removeEventListener("resize", setClientPageSize);
-        };
-    }, []);
+    const [hoverX, setHoverX] = useState(-width);
+    const [hoverY, setHoverY] = useState(-height);
 
     // useEffect(() => {
     //     if (P5) {
@@ -112,9 +89,11 @@ const Canvas: NextPage = () => {
         );
 
         shapes = albumImages.map(() => {
-            const rectToDrag = new Rectangle(p5, 50, 50, 200, 200, w);
+            const x = Math.floor(Math.random() * width);
+            const y = Math.floor(Math.random() * height);
+            const rectToDrag = new Rectangle(p5, x, y, 200, 200, w);
             rectToDrag.dragEnabled = true;
-            rectToDrag.editEnabled = true;
+            rectToDrag.editEnabled = false;
             rectToDrag.fillColor = p5.color(80);
             return rectToDrag;
         });
@@ -172,10 +151,18 @@ const Canvas: NextPage = () => {
 
     return (
         <>
-            <div
-                ref={containerRef}
-                className="relative w-screen h-screen overflow-hidden"
-            >
+            {isHover && (
+                <div
+                    style={{
+                        left: hoverX,
+                        top: hoverY,
+                    }}
+                    className="absolute text-white text-lg z-50 px-3 py-2"
+                >
+                    hello
+                </div>
+            )}
+            <div>
                 <Sketch
                     preload={preload}
                     setup={setup}
@@ -220,31 +207,6 @@ const Canvas: NextPage = () => {
                     }}
                 />
             </div>
-            <div className="fixed right-0 flex space-x-2">
-                <div
-                    onClick={onClick}
-                    className="px-3 py-2 bg-green-300 cursor-pointer"
-                >
-                    Add
-                </div>
-                <div
-                    onClick={onCapture}
-                    className="px-3 py-2 bg-green-300 cursor-pointer"
-                >
-                    Capture
-                </div>
-            </div>
-            {isHover && (
-                <div
-                    style={{
-                        left: hoverX,
-                        top: hoverY,
-                    }}
-                    className="absolute text-white text-lg z-50 px-3 py-2"
-                >
-                    hello
-                </div>
-            )}
         </>
     );
 };

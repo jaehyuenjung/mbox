@@ -6,13 +6,13 @@ async function handler(
     req: NextApiRequest,
     res: NextApiResponse<ResponseType>
 ) {
-    const { userId } = req.query;
+    const { id } = req.query;
 
-    if (userId) return res.json({ ok: false, error: "" });
+    if (!id) return res.json({ ok: false, error: "" });
 
     if (req.method === "GET") {
         const albums = await client.album.findMany({
-            where: { userId },
+            where: { userId: String(id) },
         });
 
         res.json({
