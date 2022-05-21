@@ -4,6 +4,7 @@ import ReactDOM from "react-dom";
 import { Dialog, Zoom, Button, Divider } from "@material-ui/core";
 import { useDropzone } from "react-dropzone";
 import { withPreviews, clearPreviews } from "./with-previews";
+import { QRCodeCanvas } from "qrcode.react";
 
 interface IModal {
   open: boolean;
@@ -63,6 +64,16 @@ const Modal: NextPage<IModal> = ({ open, onClose }) => {
     setIsOpen1(true);
     setModify1(true);
   };
+
+  const [copy1, setCopy1] = useState(false);
+  const Copy1 = () => {
+    setCopy1(true);
+  };
+  const Copy2 = () => {
+    setCopy1(false);
+  };
+  const [size, setSize] = useState(0);
+
   const modifyPost2 = () => {
     setModify1(false);
     clearPreviews(files);
@@ -71,6 +82,73 @@ const Modal: NextPage<IModal> = ({ open, onClose }) => {
   };
   if (!open) return null;
 
+  if (copy1)
+    return ReactDOM.createPortal(
+      <>
+        <div className="absolute flex h-screen justify-center items-center inset-0 z-10 bg-black bg-opacity-50 backdrop-filter  ">
+          <div className="min-h-screen px-6 w-2/3 max-w-md  flex flex-col items-center justify-center animate-zoomIn ">
+            <div
+              style={{ borderRadius: "12px" }}
+              className="text-center bg-white w-full "
+            >
+              <Button className="py-2 px-3 float-left" onClick={Copy2}>
+                취소
+              </Button>
+              <QRCodeCanvas
+                id="qrCode"
+                value="https://reactjs.org/"
+                size={size}
+              />
+              <div className="flex justify-center items-center space-x-3 mt-3">
+                <div
+                  onClick={() => {
+                    const qrCode = document.getElementById(
+                      "qrCode"
+                    ) as HTMLCanvasElement;
+                    if (qrCode) {
+                      qrCode.toBlob(async (blob) => {
+                        if (blob) {
+                          try {
+                            await navigator.clipboard.write([
+                              new ClipboardItem({
+                                [blob.type]: blob,
+                              }),
+                            ]);
+
+                            alert("Copy Succes!");
+                          } catch {
+                            alert("Copy Fail!");
+                          }
+                        } else alert("Copy Fail!");
+                      });
+                    } else alert("Copy Fail!");
+                  }}
+                  className="px-3 py-2 bg-gray-500 rounded-md cursor-pointer"
+                >
+                  QR CODE COPY
+                </div>
+                <div
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(
+                        "https://reactjs.org/"
+                      );
+                      alert("Copy Succes!");
+                    } catch {
+                      alert("Copy Fail!");
+                    }
+                  }}
+                  className="px-3 py-2 bg-gray-500 rounded-md cursor-pointer"
+                >
+                  URL COPY
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </>,
+      document.body
+    );
   // 수정 모달
   if (modify1)
     return ReactDOM.createPortal(
@@ -192,6 +270,10 @@ const Modal: NextPage<IModal> = ({ open, onClose }) => {
           >
             <Button className="py-2 px-3 w-full" onClick={enterPost}>
               게시물 들어가기
+            </Button>
+            <Divider />
+            <Button className="py-2 px-3 w-full" onClick={Copy1}>
+              qr코드/url 복사
             </Button>
             <Divider />
             <Button className="py-2 px-3 w-full" onClick={modifyPost1}>

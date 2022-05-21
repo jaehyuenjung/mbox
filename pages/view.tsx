@@ -252,24 +252,6 @@ const View: NextPage = () => {
                 />
               </h2>
               {/* 수정 삭제로 들어가는 모달 */}
-              <Modal open={isopen} onClose={() => setIsOpen(false)}></Modal>
-              <div onClick={() => setIsOpen(true)} className="cursor-pointer">
-                {/* 수정 삭제 들어가는 버튼  */}
-                <svg
-                  aria-label="옵션 더 보기"
-                  className="_8-yf5 "
-                  color="#fff"
-                  fill="#fff"
-                  height="24"
-                  role="img"
-                  viewBox="0 0 24 24"
-                  width="24"
-                >
-                  <circle cx="12" cy="12" r="1.5"></circle>
-                  <circle cx="6" cy="12" r="1.5"></circle>
-                  <circle cx="18" cy="12" r="1.5"></circle>
-                </svg>
-              </div>
             </div>
             <AnimatePresence>
               <motion.div
@@ -310,50 +292,17 @@ const View: NextPage = () => {
                                             exercitationem distinctio natus
                                             excepturi autem."
                   ></motion.textarea>
+                  <motion.div
+                    className="w-full items-center text-center"
+                    variants={infoColVariants}
+                  >
+                    <button className="bg-gray-300 hover:bg-gray-400 text-gray-800  font-bold py-2 px-4 rounded-full">
+                      구경하기
+                    </button>
+                  </motion.div>
                 </MotionConfig>
               </motion.div>
             </AnimatePresence>
-          </div>
-
-          <CreateAlbum
-            open={isopen1}
-            onClose={() => setIsOpen1(false)}
-          ></CreateAlbum>
-          <div
-            onClick={() => setIsOpen1(true)}
-            className="absolute right-4 bottom-4 text-slate-100 cursor-pointer"
-          >
-            <svg
-              aria-label="새로운 게시물"
-              color="#ddd"
-              fill="#ddd"
-              height="24"
-              role="img"
-              viewBox="0 0 24 24"
-              width="24"
-            >
-              <path
-                d="M2 12v3.45c0 2.849.698 4.005 1.606 4.944.94.909 2.098 1.608 4.946 1.608h6.896c2.848 0 4.006-.7 4.946-1.608C21.302 19.455 22 18.3 22 15.45V8.552c0-2.849-.698-4.006-1.606-4.945C19.454 2.7 18.296 2 15.448 2H8.552c-2.848 0-4.006.699-4.946 1.607C2.698 4.547 2 5.703 2 8.552z"
-                fill="none"
-                stroke="currentColor"
-              ></path>
-              <line
-                fill="none"
-                stroke="currentColor"
-                x1="6.545"
-                x2="17.455"
-                y1="12.001"
-                y2="12.001"
-              ></line>
-              <line
-                fill="none"
-                stroke="currentColor"
-                x1="12.003"
-                x2="12.003"
-                y1="6.545"
-                y2="17.455"
-              ></line>
-            </svg>
           </div>
         </div>
       </div>
