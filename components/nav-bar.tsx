@@ -32,24 +32,15 @@ export default function NavBar() {
       </Link>
       {!isAuth && (
         <>
-          {/* 기능 고민중.. */}
-          <input
-            type="text"
-            placeholder="검색"
-            className="text-center mx-auto"
-          ></input>
-
-          <div className="absolute right-0">
-            {/* 현재 페이지 url 복사 */}
-            <button onClick={copy}>{!copied ? "url 복사" : "복사 완료"}</button>
-
-            {/* 앨범 생성 */}
-            <button onClick={() => setIsOpen(true)}> 앨범 생성</button>
-            <CreateAlbum
-              open={isopen}
-              onClose={() => setIsOpen(false)}
-            ></CreateAlbum>
-          </div>
+          <>
+            {/* 기능 고민중.. */}
+            <input
+              type="text"
+              placeholder="검색"
+              className="text-center mx-auto "
+            ></input>
+          </>
+          <div>hello</div>
         </>
       )}
     </nav>

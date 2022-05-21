@@ -12,6 +12,7 @@ import client from "libs/server/client";
 import { getSession } from "next-auth/react";
 import { Album } from "@prisma/client";
 import CreateAlbum from "components/create-album";
+import { Card } from "@material-ui/core";
 
 interface IAlbum {
   id: number;
@@ -85,6 +86,7 @@ const View: NextPage = () => {
   const [delay, setDelay] = useState(false);
 
   const [isopen, setIsOpen] = useState(false);
+  const [isopen1, setIsOpen1] = useState(false);
 
   const page = Math.min(albums.length - 1, 6);
   const perAlbums: IPerAlbum[] = [];
@@ -313,7 +315,14 @@ const View: NextPage = () => {
             </AnimatePresence>
           </div>
 
-          <div className="absolute right-4 bottom-4 text-slate-100 cursor-pointer">
+          <CreateAlbum
+            open={isopen1}
+            onClose={() => setIsOpen1(false)}
+          ></CreateAlbum>
+          <div
+            onClick={() => setIsOpen1(true)}
+            className="absolute right-4 bottom-4 text-slate-100 cursor-pointer"
+          >
             <svg
               aria-label="새로운 게시물"
               color="#ddd"
