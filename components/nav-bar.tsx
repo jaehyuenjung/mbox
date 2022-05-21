@@ -1,3 +1,4 @@
+import { Divider } from "@material-ui/core";
 import { NextPage } from "next";
 import Image from "next/image";
 import Link from "next/link";
@@ -45,16 +46,20 @@ const NavBar: NextPage<BaseProps> = ({ user }) => {
   //앨범 생성
   const onCreate = () => {};
   return (
-    <nav className="fixed w-full flex justify-between top-0">
+    <nav className="bg-slate-100 fixed w-full flex justify-between top-0 border-b-2 border-black z-10">
       <Link href="/view">
-        <a className="absolute left-0 w-10 aspect-square">
+        <a className="relative left-0 w-10 aspect-square">
           <Image src={logo} className="object-fill" layout="fill" alt="" />
         </a>
       </Link>
       {!isAuthOrOther && (
         <>
           {/* 기능 고민중.. */}
-          <input type="text" placeholder="검색" className="mx-auto"></input>
+          <input
+            type="text"
+            placeholder="검색"
+            className="mx-auto bg-slate-300 rounded-lg"
+          ></input>
 
           <div className="absolute right-0 w-10 ">
             {/* 현재 페이지 url 복사 */}

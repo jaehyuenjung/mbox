@@ -11,13 +11,10 @@ interface IModal {
   onClose: () => void;
 }
 
-const enterPost = () => {};
-const modifyPost = () => {};
-const deletePost = () => {};
-
 const Modal: NextPage<IModal> = ({ open, onClose }) => {
   const [files, setFiles] = useState([]);
   const [open1, setIsOpen1] = useState(true);
+
   useEffect(() => () => clearPreviews(files), [files]);
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -32,6 +29,13 @@ const Modal: NextPage<IModal> = ({ open, onClose }) => {
       );
     },
   });
+
+  const imgload = (event: any) => {
+    if (event.target.files[0] != undefined) {
+      setimg(URL.createObjectURL(event.target.files[0]));
+    }
+  };
+
   const thumbs = files.map((file, index) => (
     <div className="w-full h-full" key={file.name}>
       <img

@@ -17,6 +17,7 @@ const deletePost = () => {};
 const CreateAlbum: NextPage<IModal> = ({ open, onClose }) => {
   const [files, setFiles] = useState([]);
   const [open1, setIsOpen1] = useState(true);
+
   useEffect(() => () => clearPreviews(files), [files]);
 
   const { getRootProps, getInputProps } = useDropzone({
@@ -59,6 +60,7 @@ const CreateAlbum: NextPage<IModal> = ({ open, onClose }) => {
     clearPreviews(files);
     setFiles([]);
     onClose();
+    setIsOpen1(true);
   };
   if (!open) return null;
   return ReactDOM.createPortal(
@@ -94,7 +96,7 @@ const CreateAlbum: NextPage<IModal> = ({ open, onClose }) => {
                     "flex items-center justify-center dropzone w-3/5 h-full overflow-hidden",
                 })}
               >
-                {open1 === true ? (
+                {open1 ? (
                   <div>
                     <svg
                       aria-label="이미지나 동영상과 같은 미디어를 나타내는 아이콘"
