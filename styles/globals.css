@@ -156,3 +156,7 @@ input:checked + .toggleslider::before{
 #pagescroll::-webkit-scrollbar-track{
   background-color: rgb(241 245 249 / var(--tw-bg-opacity));
 }
+
+#editpage::-webkit-scrollbar{
+  display: none;
+}

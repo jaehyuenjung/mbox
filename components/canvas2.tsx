@@ -34,10 +34,13 @@ const grounds: Boundary[] = [];
 let shapes: Rectangle[] = [];
 let font: p5Types.Font;
 
-const Canvas2: NextPage = ({img,update_w_h, value}:any) => {
+const Canvas2: NextPage = ({img,update_w_h}:any) => {
     const [photoURL, setPhotoURL] = useState<string[]>([
         img
     ]);
+
+    
+
     const onClick = () => {
         if (P5 && world) {
             const tump = "/assets/elephant-hd-quality.png";
@@ -59,6 +62,13 @@ const Canvas2: NextPage = ({img,update_w_h, value}:any) => {
     const [isHover, setIsHover] = useState(false);
     const [hoverX, setHoverX] = useState(-100);
     const [hoverY, setHoverY] = useState(-100);
+
+    useEffect(() => {
+        if(P5 && img){
+            albumImages[0] = P5.loadImage(img);
+            
+        }
+    }, [img,P5])
 
     useEffect(() => {
         const setClientPageSize = () => {
@@ -137,7 +147,6 @@ const Canvas2: NextPage = ({img,update_w_h, value}:any) => {
             p5.pop();
         }
     };
-
     const onCapture = () => {
         if (P5) {
             const canvas = document.getElementById(
@@ -170,7 +179,7 @@ const Canvas2: NextPage = ({img,update_w_h, value}:any) => {
         <>
             <div
                 ref={containerRef}
-                className="relative w-screen h-screen overflow-hidden"
+                className="relative w-auto h-auto overflow-hidden"
             >
                 <Sketch
                     preload={preload}
@@ -192,8 +201,10 @@ const Canvas2: NextPage = ({img,update_w_h, value}:any) => {
                             .forEach((s) => s.handleMouseDragged(p5));
                         shapes
                             .filter((s) => s.dragEnabled)
-                            .find((s) => update_w_h(s._width,s._height));
-
+                            .find((s) => update_w_h(Math.round(s._width*100)/100,Math.round(s._height*100)/100));
+                        
+                       
+                        
                     }}
                     mouseReleased={(p5) => {
                         shapes
@@ -219,32 +230,6 @@ const Canvas2: NextPage = ({img,update_w_h, value}:any) => {
                     }}
                 />
             </div>
-            <div className="fixed right-0 flex space-x-2">
-                <div
-                    onClick={onClick}
-                    className="px-3 py-2 bg-green-300 cursor-pointer"
-                >
-                    Add
-                </div>
-                <div
-                    onClick={onCapture}
-                    className="px-3 py-2 bg-green-300 cursor-pointer"
-                >
-                    Capture
-                </div>
-            </div>
-            {isHover && (
-                <div
-                    style={{
-                        left: hoverX,
-                        top: hoverY,
-                    }}
-                    className="absolute text-white text-lg z-50 px-3 py-2"
-                >
-                    제목<br/>{value[0]}<br/>
-                    내용<br/>{value[1]}
-                </div>
-            )}
         </>
     );
 };

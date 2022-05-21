@@ -172,6 +172,9 @@ class Rectangle extends Rect {
                 this.topRight,
             ];
 
+            this._width = Math.abs(this.topRight.x-this.topLeft.x);
+            this._height = Math.abs(this.topRight.y - this.bottomRight.y);
+
             Body.setCentre(this.body, Vertices.centre(vertices));
             Body.setVertices(
                 this.body,
