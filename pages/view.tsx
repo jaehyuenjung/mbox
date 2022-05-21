@@ -13,6 +13,7 @@ import { getSession } from "next-auth/react";
 import { Album } from "@prisma/client";
 import CreateAlbum from "components/create-album";
 import { Card } from "@material-ui/core";
+import Profile from "@components/profile";
 
 interface IAlbum {
   id: number;
@@ -84,9 +85,6 @@ const View: NextPage = () => {
   const [index, setIndex] = useState(0);
   const [perIndex, setPerIndex] = useState(0);
   const [delay, setDelay] = useState(false);
-
-  const [isopen, setIsOpen] = useState(false);
-  const [isopen1, setIsOpen1] = useState(false);
 
   const page = Math.min(albums.length - 1, 6);
   const perAlbums: IPerAlbum[] = [];

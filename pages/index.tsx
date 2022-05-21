@@ -258,6 +258,7 @@ const Home: NextPage<BaseProps> = ({ user }) => {
                 variants={infoColVariants}
                 initial="hidden"
                 animate="visible"
+                transition={{ delay: 3 }}
                 onClick={() => setIsOpen(true)}
                 className="cursor-pointer"
               >
@@ -318,6 +319,14 @@ const Home: NextPage<BaseProps> = ({ user }) => {
                                                 exercitationem distinctio natus
                                                 excepturi autem."
                   ></motion.textarea>
+                  <motion.div
+                    className="w-full items-center text-center"
+                    variants={infoColVariants}
+                  >
+                    <button className="bg-gray-300 hover:bg-gray-400 text-gray-800  font-bold py-2 px-4 rounded-full">
+                      앨범 내부 편집
+                    </button>
+                  </motion.div>
                 </MotionConfig>
               </motion.div>
             </AnimatePresence>
@@ -331,6 +340,7 @@ const Home: NextPage<BaseProps> = ({ user }) => {
           <motion.div
             onClick={() => setIsOpen1(true)}
             variants={infoColVariants}
+            transition={{ delay: 3 }}
             initial="hidden"
             animate="visible"
             className="absolute right-4 bottom-4 text-slate-100 cursor-pointer"

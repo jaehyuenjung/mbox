@@ -73,6 +73,26 @@ const Modal: NextPage<IModal> = ({ open, onClose }) => {
     setCopy1(false);
   };
   const [size, setSize] = useState(0);
+  useEffect(() => {
+    if (window) {
+      const onResize = () => {
+        if (document) {
+          const minLength = Math.min(
+            document.body.clientWidth,
+            document.body.clientHeight
+          );
+          setSize(minLength * 0.3);
+        }
+      };
+
+      onResize();
+
+      window.addEventListener("resize", onResize);
+      return () => {
+        window.removeEventListener("resize", onResize);
+      };
+    }
+  }, []);
 
   const modifyPost2 = () => {
     setModify1(false);
@@ -268,9 +288,6 @@ const Modal: NextPage<IModal> = ({ open, onClose }) => {
             style={{ borderRadius: "12px" }}
             className="text-center bg-white w-full "
           >
-            <Button className="py-2 px-3 w-full" onClick={enterPost}>
-              게시물 들어가기
-            </Button>
             <Divider />
             <Button className="py-2 px-3 w-full" onClick={Copy1}>
               qr코드/url 복사
