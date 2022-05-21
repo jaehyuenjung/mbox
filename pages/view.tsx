@@ -187,11 +187,11 @@ const View: NextPage = () => {
                                             style={{
                                                 maskImage:
                                                     i == 0
-                                                        ? "url(assets/sprites/slider-sprite.png)"
+                                                        ? "url(/assets/sprites/slider-sprite.png)"
                                                         : "",
                                                 WebkitMaskImage:
                                                     i == 0
-                                                        ? "url(assets/sprites/slider-sprite.png)"
+                                                        ? "url(/assets/sprites/slider-sprite.png)"
                                                         : "",
 
                                                 maskSize: "3000% 100%",
