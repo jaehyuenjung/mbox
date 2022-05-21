@@ -14,7 +14,7 @@ const Layout: NextPage<LayoutProps> = ({ FC }) => {
     const { user } = useUser();
     return (
         <div className="flex pt-8 w-screen h-screen">
-            <NavBar />
+            <NavBar user={user} />
             <FC user={user} />
         </div>
     );

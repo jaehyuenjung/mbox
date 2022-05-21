@@ -14,6 +14,7 @@ import {
     Bounds,
     Vector,
     Body,
+    Render,
 } from "matter-js";
 import Boundary from "@libs/client/canvas/shapes/boundary";
 import React from "react";
@@ -31,11 +32,6 @@ let albumImages: p5Types.Image[] = [];
 
 const grounds: Boundary[] = [];
 let shapes: Rectangle[] = [];
-let img: p5Types.Image;
-let engine: Matter.Engine;
-let world: Matter.World;
-let mConstraint: Matter.MouseConstraint;
-let camera: p5Types.Camera;
 let font: p5Types.Font;
 
 const Canvas: NextPage = () => {
@@ -46,7 +42,7 @@ const Canvas: NextPage = () => {
         "https://cdn.pixabay.com/photo/2015/04/23/22/00/tree-736885__340.jpg",
     ]);
     const onClick = () => {
-        if (P5) {
+        if (P5 && world) {
             const tump = "/assets/elephant-hd-quality.png";
             setPhotoURL((prev) => [...prev, tump]);
             albumImages.push(P5.loadImage(tump));
@@ -58,9 +54,14 @@ const Canvas: NextPage = () => {
         }
     };
     const containerRef = useRef<HTMLDivElement>(null);
+    const [engine, setEngine] = useState<Engine>();
+    const [world, setWorld] = useState<World>();
     const [width, setWidth] = useState(0);
     const [height, setHeight] = useState(0);
     const [P5, setP5] = useState<p5Types>();
+    const [isHover, setIsHover] = useState(false);
+    const [hoverX, setHoverX] = useState(-100);
+    const [hoverY, setHoverY] = useState(-100);
 
     useEffect(() => {
         const setClientPageSize = () => {
@@ -72,11 +73,17 @@ const Canvas: NextPage = () => {
         };
         setClientPageSize();
 
-        window.addEventListener("resize", setClientPageSize);
+        // window.addEventListener("resize", setClientPageSize);
         return () => {
-            window.removeEventListener("resize", setClientPageSize);
+            // window.removeEventListener("resize", setClientPageSize);
         };
     }, []);
+
+    // useEffect(() => {
+    //     if (P5) {
+    //         P5.resizeCanvas(width, height);
+    //     }
+    // }, [P5, width, height, engine]);
 
     const preload = (p5: p5Types) => {
         font = p5.loadFont("/assets/fonts/TMONBlack.ttf");
@@ -88,100 +95,79 @@ const Canvas: NextPage = () => {
         const canvas = p5
             .createCanvas(width, height, p5.WEBGL)
             .parent(canvasParentRef);
-        engine = Engine.create();
-        engine.gravity.y = 0;
-        world = engine.world;
+
+        const e = Engine.create(canvas.elt);
+
+        e.gravity.y = 0;
+        const w = e.world;
         P5JsSettings.init(p5);
 
-        const mouse = Mouse.create(canvas.elt);
-        mouse.pixelRatio = p5.pixelDensity();
-        const options = {
-            collisionFilter: {
-                // mask: DEFAULT_CATEGORY,
-            },
-            mouse: mouse,
-        };
-        mConstraint = MouseConstraint.create(engine, options);
-        World.add(world, mConstraint);
-
-        grounds.push(new Boundary(-400 / 2, height / 2, 400, height, world));
+        grounds.push(new Boundary(-400 / 2, height / 2, 400, height, w));
+        grounds.push(new Boundary(width + 400 / 2, height / 2, 400, height, w));
         grounds.push(
-            new Boundary(width + 400 / 2, height / 2, 400, height, world)
+            new Boundary(width / 2, -400 / 2, width + 400 * 2, 400, w)
         );
         grounds.push(
-            new Boundary(width / 2, -400 / 2, width + 400 * 2, 400, world)
-        );
-        grounds.push(
-            new Boundary(
-                width / 2,
-                height + 400 / 2,
-                width + 400 * 2,
-                400,
-                world
-            )
+            new Boundary(width / 2, height + 400 / 2, width + 400 * 2, 400, w)
         );
 
         shapes = albumImages.map(() => {
-            const rectToDrag = new Rectangle(p5, 50, 50, 200, 200, world);
+            const rectToDrag = new Rectangle(p5, 50, 50, 200, 200, w);
             rectToDrag.dragEnabled = true;
             rectToDrag.editEnabled = true;
             rectToDrag.fillColor = p5.color(80);
             return rectToDrag;
         });
 
-        // Events.on(mConstraint, "mousemove", function (event) {
-        //     const m = event.source.mouse;
-        //     shapes.forEach((s) => {
-        //         if (
-        //             Bounds.contains(s.body.bounds, m.position) &&
-        //             m.button == 0
-        //         ) {
-        //             const targetAngle = Vector.angle(
-        //                 s.body.position,
-        //                 m.position
-        //             );
-        //             Body.rotate(s.body, targetAngle - s.body.angle);
-        //         }
-        //     });
-        // });
-
-        // document.body.addEventListener("mousemove", function (event) {
-        //     var mousePosition = { x: event.offsetX, y: event.offsetY };
-        //     shapes.forEach((s) => {
-        //         if (
-        //             Bounds.contains(s.body.bounds, mousePosition) &&
-        //             event.button === 0
-        //         ) {
-        //             const targetAngle = Vector.angle(
-        //                 s.body.position,
-        //                 mousePosition
-        //             );
-        //             Body.rotate(s.body, targetAngle - s.body.angle);
-        //         }
-        //     });
-        // });
-
         p5.textureMode(p5.NORMAL);
 
-        // camera = p5.createCamera();
-        // camera.setPosition(0, 0, 600);
-        // camera.lookAt(0, 0, 0);
-        // p5.perspective(p5.PI / 3.0, width / height, 1, 1000);
+        setEngine(e);
+        setWorld(w);
     };
     const draw = (p5: p5Types) => {
-        p5.background(0);
-        Engine.update(engine);
-        p5.translate(-width / 2, -height / 2);
+        if (engine) {
+            p5.background(0);
+            Engine.update(engine);
+            p5.translate(-width / 2, -height / 2);
 
-        p5.noStroke();
+            p5.noStroke();
 
-        p5.push();
-        grounds.forEach((g) => g.draw(p5));
-        p5.pop();
+            p5.push();
+            grounds.forEach((g) => g.draw(p5));
+            p5.pop();
 
-        p5.push();
-        shapes.forEach((s, i) => s.draw(p5, albumImages[i]));
-        p5.pop();
+            p5.push();
+            shapes.forEach((s, i) => s.draw(p5, albumImages[i]));
+            p5.pop();
+        }
+    };
+
+    const onCapture = () => {
+        if (P5) {
+            const canvas = document.getElementById(
+                "defaultCanvas0"
+            ) as HTMLCanvasElement;
+
+            canvas.toBlob(async (blob) => {
+                if (blob) {
+                    console.log(URL.createObjectURL(blob));
+                    // const { uploadURL } = await (
+                    //     await fetch(`/api/files`)
+                    // ).json();
+                    // const formData = new FormData();
+                    // formData.append("file", blob, "image.jpg");
+                    // const {
+                    //     result: { id },
+                    // } = await (
+                    //     await fetch(uploadURL, {
+                    //         method: "POST",
+                    //         body: formData,
+                    //     })
+                    // ).json();
+                    // toDo: 앨범 표지 업로드
+                }
+            });
+        }
     };
 
     return (
@@ -194,16 +180,18 @@ const Canvas: NextPage = () => {
                     preload={preload}
                     setup={setup}
                     draw={draw}
-                    windowResized={(p5) => {
-                        p5.resizeCanvas(width, height);
-                        // p5.perspective(p5.PI / 3.0, width / height, 1, 1000);
-                    }}
+                    // windowResized={(p5) => {
+                    //     p5.resizeCanvas(width, height, true);
+
+                    //     // p5.perspective(p5.PI / 3.0, width / height, 1, 1000);
+                    // }}
                     mousePressed={(p5) => {
                         shapes
                             .filter((s) => s.dragEnabled)
                             .find((s) => s.handleMousePressed(p5));
                     }}
                     mouseDragged={(p5) => {
+                        setIsHover(false);
                         shapes
                             .filter((s) => s.isDragged)
                             .forEach((s) => s.handleMouseDragged(p5));
@@ -211,18 +199,52 @@ const Canvas: NextPage = () => {
                     mouseReleased={(p5) => {
                         shapes
                             .filter((s) => s.isDragged)
-                            .forEach((s) =>
-                                s.handleMouseReleased(p5, mConstraint)
-                            );
+                            .forEach((s) => s.handleMouseReleased(p5));
+                    }}
+                    mouseMoved={(p5) => {
+                        let flag = false;
+                        shapes.forEach((s) => {
+                            if (
+                                Bounds.contains(s.body.bounds, {
+                                    x: p5.mouseX,
+                                    y: p5.mouseY,
+                                })
+                            ) {
+                                if (!flag) flag = true;
+                                if (!isHover) setIsHover(true);
+                                setHoverX(p5.mouseX);
+                                setHoverY(p5.mouseY);
+                            }
+                        });
+                        if (!flag) setIsHover(false);
                     }}
                 />
             </div>
-            <div
-                onClick={onClick}
-                className="fixed right-0 px-3 py-2 bg-green-300"
-            >
-                Add
+            <div className="fixed right-0 flex space-x-2">
+                <div
+                    onClick={onClick}
+                    className="px-3 py-2 bg-green-300 cursor-pointer"
+                >
+                    Add
+                </div>
+                <div
+                    onClick={onCapture}
+                    className="px-3 py-2 bg-green-300 cursor-pointer"
+                >
+                    Capture
+                </div>
             </div>
+            {isHover && (
+                <div
+                    style={{
+                        left: hoverX,
+                        top: hoverY,
+                    }}
+                    className="absolute text-white text-lg z-50 px-3 py-2"
+                >
+                    hello
+                </div>
+            )}
         </>
     );
 };
