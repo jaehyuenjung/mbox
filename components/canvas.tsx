@@ -157,7 +157,7 @@ const Canvas: NextPage<CanvasProps> = ({ width, height }) => {
                         left: hoverX,
                         top: hoverY,
                     }}
-                    className="absolute text-white text-lg z-50 px-3 py-2"
+                    className="absolute text-white text-lg z-20 px-3 py-2"
                 >
                     hello
                 </div>
