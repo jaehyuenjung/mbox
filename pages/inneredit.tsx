@@ -8,7 +8,7 @@ import dynamic from "next/dynamic";
 import Imgaddbtn from "@components/editimgadd";
 import Dropzone, { useDropzone } from "react-dropzone";
 import { PulseLoader } from "react-spinners";
-import { Droppable } from "react-beautiful-dnd";
+import { DragDropContext } from "react-beautiful-dnd";
 
 const Canvas2 = dynamic(() => import("@components/canvas2"), { ssr: false });
 
@@ -127,12 +127,9 @@ const Edit: NextPage<BaseProps> = ({}) => {
 
     }
 
-
-<svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-  <path stroke-linecap="round" stroke-linejoin="round" d="M9 13h6M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
-</svg>
     return (
-            <div id={'editpage'} className={' w-full h-full flex overflow-y-scroll m-auto'}>
+            <div id={'editpage'} className={'flex w-full h-full overflow-y-scroll m-auto'}>
+                
                 <div id={'imgscroll'} className={'min-w-[230px] min-h-[920px] w-[320px] h-full p-2 bg-slate-100 overflow-y-scroll '}>
                     <div className={'w-full text-center font-bold text-[15px] '}>Images</div>
                     {imglist.map((val,key,)=>{
@@ -178,7 +175,7 @@ const Edit: NextPage<BaseProps> = ({}) => {
                     <Imgaddbtn addimgbtn={addimgbtn} imglist={imglist.length}/>
                 </div>
 
-                <div className={' right-0 top-0 w-[80%] h-full bg-slate-600 min-h-[920px] min-w-[780px]'}>
+                <div className={'right-0 top-0 w-[80%] h-full bg-slate-600 min-h-[920px] min-w-[780px]'}>
                     <div className={'flex p-5 flex-col space-y-5 left-0 top-0 w-[96%] h-[96%] bg-slate-200 m-[2%] rounded-3xl'}>
                         <div className={'self-center'}>
                             <div className={' w-[600px] h-[400px] bg-zinc-400'}>  
@@ -231,7 +228,7 @@ const Edit: NextPage<BaseProps> = ({}) => {
                     </div>
                 </div>
 
-                <div id={'pagescroll'} className={'min-w-[230px] min-h-[920px]  w-[320px] h-full p-2 bg-slate-100 overflow-y-scroll '}>
+                <div id={'pagescroll'} className={'min-w-[230px] min-h-[920px] right-0 w-[320px] h-full p-2 bg-slate-100 overflow-y-scroll '}>
                     <div className={'w-full text-center font-bold text-[15px] '}>Pages</div>
                     {page.map((val,key,)=>{
                         let a = false;
