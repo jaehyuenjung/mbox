@@ -340,14 +340,14 @@ export const getStaticPaths: GetStaticPaths = () => {
 };
 
 export const getStaticProps: GetStaticProps = async (ctx) => {
-    if (!ctx.params?.id) {
+    if (!ctx.params?.userId) {
         return {
             notFound: true,
         };
     }
 
     const isExist = await client.user.findUnique({
-        where: { id: String(ctx.params.id) },
+        where: { id: String(ctx.params.userId) },
     });
 
     if (!isExist) {

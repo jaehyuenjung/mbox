@@ -21,8 +21,8 @@ async function handler(
     if (!album) return res.json({ ok: false, error: "" });
     if (album.userId !== session.user.id)
         return res.json({ ok: false, error: "" });
-    if (album.password && (await bcrypt.compare(album.password, checkPassword)))
-        return res.json({ ok: false, error: "" });
+    // if (album.password && (await bcrypt.compare(album.password, checkPassword)))
+    //     return res.json({ ok: false, error: "" });
 
     if (req.method === "POST") {
         const { title, description, password } = req.body;

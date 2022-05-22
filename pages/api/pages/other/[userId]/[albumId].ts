@@ -8,33 +8,33 @@ async function handler(
     req: NextApiRequest,
     res: NextApiResponse<ResponseType>
 ) {
-    const session = await getSession({ req });
+    const { albumId } = req.query;
 
-    if (!session) return res.json({ ok: false, error: "" });
+    if (!albumId || Number(albumId) === NaN)
+        return res.json({ ok: false, error: "" });
 
-    if (req.method === "GET") {
-        const { id, page } = req.query;
-
-        if (!id || (page !== undefined && Number(page) === NaN))
-            return res.json({ ok: false, error: "" });
-
-        const album = await client.album.findUnique({
-            where: { id: +id },
-            include: {
-                _count: {
-                    select: {
-                        pages: true,
-                    },
+    const album = await client.album.findUnique({
+        where: { id: +albumId },
+        include: {
+            _count: {
+                select: {
+                    pages: true,
                 },
             },
-        });
+        },
+    });
 
-        if (!album) return res.json({ ok: false, error: "" });
+    if (!album) return res.json({ ok: false, error: "" });
+    if (req.method === "GET") {
+        const { page } = req.query;
+
+        if (page !== undefined && Number(page) === NaN)
+            return res.json({ ok: false, error: "" });
 
         if (page) {
             const pagination = await client.pagination.findFirst({
                 where: {
-                    albumId: +id,
+                    albumId: +albumId,
                     no: +page,
                 },
                 include: {
@@ -44,12 +44,12 @@ async function handler(
 
             return res.json({
                 ok: true,
-                page: { ...pagination, totalPage: album._count.pages },
+                pagination: { ...pagination, totalPage: album._count.pages },
             });
         } else {
             const pagination = await client.pagination.findFirst({
                 where: {
-                    albumId: +id,
+                    albumId: +albumId,
                     no: 1,
                 },
                 include: {
@@ -59,7 +59,7 @@ async function handler(
 
             return res.json({
                 ok: true,
-                page: { ...pagination, totalPage: album._count.pages },
+                pagination: { ...pagination, totalPage: album._count.pages },
             });
         }
     }

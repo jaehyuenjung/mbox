@@ -5,9 +5,10 @@ interface InputProps {
     label: string;
     register: UseFormRegisterReturn;
     id: string;
-    type: "text" | "email" | "password";
+    type: "text" | "email" | "password" | "content";
     required?: boolean;
     strong?: boolean;
+    [key: string]: any;
 }
 
 const Input: NextPage<InputProps> = ({
@@ -17,6 +18,7 @@ const Input: NextPage<InputProps> = ({
     type,
     required = true,
     strong = undefined,
+    ...other
 }) => {
     return (
         <>
@@ -63,13 +65,24 @@ const Input: NextPage<InputProps> = ({
                     </div>
                 ) : null}
             </div>
-            <input
-                {...register}
-                id={id}
-                type={type}
-                required={required}
-                className="py-2 px-4 w-full border rounded-md border-gray-300 focus:outline-none focus:ring-4 focus:ring-opacity-20 focus:border-blue-400 focus:ring-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed "
-            />
+            {type === "content" ? (
+                <textarea
+                    {...other}
+                    {...register}
+                    id={id}
+                    required={required}
+                    className="w-full aspect-[16/4] py-2 px-4 border rounded-md border-gray-300 focus:outline-none focus:ring-4 focus:ring-opacity-20 focus:border-blue-400 focus:ring-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed resize-none"
+                />
+            ) : (
+                <input
+                    {...other}
+                    {...register}
+                    id={id}
+                    type={type}
+                    required={required}
+                    className="py-2 px-4 w-full border rounded-md border-gray-300 focus:outline-none focus:ring-4 focus:ring-opacity-20 focus:border-blue-400 focus:ring-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed "
+                />
+            )}
         </>
     );
 };

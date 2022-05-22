@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 
-const Canvas = dynamic(() => import("@components/canvas"), { ssr: false });
+const Canvas = dynamic(() => import("@components/read-canvas"), { ssr: false });
 
 interface IForm {
     no: number;
