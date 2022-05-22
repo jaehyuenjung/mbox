@@ -80,16 +80,14 @@ class Rectangle extends Rect {
         this.velocity = { x: 0, y: 0 };
     }
 
-    setSize(newSize: number) {
-        let deltaWidth = this.width - newSize;
-        let deltaHeight = this.height - newSize;
+    setSize() {
+        const newWidth = Math.round(Math.abs(this.topLeft.x - this.topRight.x));
+        const newHeight = Math.round(
+            Math.abs(this.topLeft.y - this.bottomLeft.y)
+        );
 
-        // Maintain location
-        this._x += deltaWidth / 2;
-        this._y += deltaHeight / 2;
-
-        this._width = newSize;
-        this._height = newSize;
+        this._width = newWidth;
+        this._height = newHeight;
     }
 
     initPoints(p5: p5InstanceExtensions) {
@@ -186,6 +184,8 @@ class Rectangle extends Rect {
                 )
             );
             Body.setInertia(this.body, Infinity);
+
+            this.setSize();
         } else {
             this._x = p5.mouseX - this.dragOffset!.x;
             this._y = p5.mouseY - this.dragOffset!.y;

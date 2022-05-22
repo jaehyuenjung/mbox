@@ -6,16 +6,21 @@ interface UseMutationState<T> {
     error?: object;
 }
 
+type Method = "POST" | "DELETE";
+
 type UseMutationResult<T> = [(data: any) => void, UseMutationState<T>];
 
-export default function useMutation<T>(url: string): UseMutationResult<T> {
+export default function useMutation<T>(
+    url: string,
+    type: Method
+): UseMutationResult<T> {
     const [loading, setLoading] = useState(false);
     const [data, setData] = useState<undefined | T>(undefined);
     const [error, setError] = useState<undefined | any>(undefined);
     function mutation(data: any) {
         setLoading(true);
-        fetch(url, {
-            method: "POST",
+        return fetch(url, {
+            method: type,
             headers: {
                 "Content-Type": "application/json",
             },
