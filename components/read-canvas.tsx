@@ -148,8 +148,10 @@ const ReadCanvas: NextPage<CanvasProps> = ({ width, height, photos }) => {
                     className="absolute text-white text-lg z-20 px-3 py-2"
                 >
                     {hover && isHover && (
-                        <div>
+                        <div className={'min-h-[50px] min-w-[40px] max-w-[300px] w-auto h-auto text-[15px] bg-[rgb(51,51,51)] opacity-[0.8] p-[5px] rounded-[10px]'}>
+                            <div>제목</div>
                             <div>{hover.title}</div>
+                            <div>내용</div>
                             <div>{hover.description}</div>
                             <div>{hover.tags}</div>
                         </div>
