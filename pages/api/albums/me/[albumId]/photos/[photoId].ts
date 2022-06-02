@@ -9,38 +9,49 @@ async function handler(
     res: NextApiResponse<ResponseType>
 ) {
     const {
-        query: { id },
-        body: { checkPassword },
+        query: { albumId, photoId },
     } = req;
     const session = await getSession({ req });
 
-    if (!session) return res.json({ ok: false, error: "" });
+    if (!session || !albumId || !photoId)
+        return res.json({ ok: false, error: "" });
 
-    const album = await client.album.findUnique({ where: { id: +id } });
+    const album = await client.album.findUnique({ where: { id: +albumId } });
 
     if (!album) return res.json({ ok: false, error: "" });
     if (album.userId !== session.user.id)
         return res.json({ ok: false, error: "" });
-    // if (album.password && (await bcrypt.compare(album.password, checkPassword)))
-    //     return res.json({ ok: false, error: "" });
+
+    const photo = await client.photo.findFirst({
+        where: {
+            id: +photoId,
+            pagination: {
+                albumId: album.id,
+            },
+        },
+    });
+
+    if (!photo) return res.json({ ok: false, error: "" });
 
     if (req.method === "POST") {
-        const { title, description, password } = req.body;
+        const { title, description, width, height, tags, imagePath } = req.body;
         const data: any = {};
 
         if (title) data.title = title;
         if (description) data.description = description;
-        if (password) data.password = password;
+        if (width) data.width = width;
+        if (height) data.height = height;
+        if (tags) data.tags = tags;
+        if (imagePath) data.imagePath = imagePath;
 
-        await client.album.update({
-            where: { id: +id },
+        await client.photo.update({
+            where: { id: +photoId },
             data,
         });
 
         return res.json({ ok: true });
     } else if (req.method === "DELETE") {
-        await client.album.delete({ where: { id: album.id } });
-
+        await client.photo.delete({ where: { id: photo.id } });
         return res.json({ ok: true });
     }
 }

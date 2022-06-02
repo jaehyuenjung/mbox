@@ -22,18 +22,22 @@ async function handler(
             albums,
         });
     } else if (req.method === "POST") {
-        const { title, description, password } = req.body;
+        const { title, description, password, tags } = req.body;
 
         const album = await client.album.create({
             data: {
                 title,
                 password,
                 description,
+                tags,
+                pages: {
+                    create: { no: 1 },
+                },
                 user: { connect: { id: session.user.id } },
             },
         });
 
-        return res.json({ ok: true });
+        return res.json({ ok: true, album });
     }
 }
 

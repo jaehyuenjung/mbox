@@ -49,9 +49,7 @@ const EditCanvas: NextPage<EditCanvasProps> = ({ photo, url, onResize }) => {
     const preload = (p5: p5Types) => {
         font = p5.loadFont("/assets/fonts/TMONBlack.ttf");
         setPhotoImage(
-            p5.loadImage(
-                photo.imagePath !== "" ? photo.imagePath : "/noimage.jpg"
-            )
+            p5.loadImage(photo.imagePath ? photo.imagePath : "/noimage.jpg")
         );
     };
 

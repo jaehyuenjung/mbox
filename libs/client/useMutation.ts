@@ -4,6 +4,7 @@ interface UseMutationState<T> {
     loading: boolean;
     data?: T;
     error?: object;
+    reset: () => void;
 }
 
 type Method = "POST" | "DELETE";
@@ -31,5 +32,10 @@ export default function useMutation<T>(
             .catch(setError)
             .finally(() => setLoading(false));
     }
-    return [mutation, { loading, data, error }];
+    function reset() {
+        setLoading(false);
+        setData(undefined);
+        setError(undefined);
+    }
+    return [mutation, { loading, data, error, reset }];
 }

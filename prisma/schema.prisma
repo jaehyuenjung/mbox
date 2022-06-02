@@ -77,7 +77,7 @@ model Photo {
   paginationId Int
   title        String
   description  String?    @db.Text
-  imagePath    String
+  imagePath    String?
   width        Int
   height       Int
   tags         String?

@@ -7,6 +7,7 @@ const nextConfig = {
             "ssl.pstatic.net",
             "platform-lookaside.fbsbx.com",
             "cdn.pixabay.com",
+            "imagedelivery.net",
         ],
     },
 };

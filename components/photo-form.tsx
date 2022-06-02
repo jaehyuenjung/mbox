@@ -1,6 +1,7 @@
 import useMutation from "@libs/client/useMutation";
 import { convertURLtoFile } from "@libs/client/utils";
-import { Photo } from "@prisma/client";
+import { ResponseType } from "@libs/server/withHandler";
+import { Pagination, Photo } from "@prisma/client";
 import { NextPage } from "next";
 import dynamic from "next/dynamic";
 import Image from "next/image";
@@ -14,6 +15,7 @@ import {
 } from "react";
 import { useDropzone } from "react-dropzone";
 import { useForm } from "react-hook-form";
+import { KeyedMutator, mutate } from "swr";
 import Input from "./input";
 
 const EditCanvas = dynamic(() => import("@components/edit-canvas"), {
@@ -21,8 +23,8 @@ const EditCanvas = dynamic(() => import("@components/edit-canvas"), {
 });
 
 interface PhotoFormProps {
-    photo?: Photo;
-    no?: number;
+    photo: Photo;
+    onChangePhoto: (deletedId: number, newPhoto: Photo) => void;
 }
 
 interface IForm {
@@ -31,16 +33,23 @@ interface IForm {
     image: FileList;
 }
 
-const PhotoForm: NextPage<PhotoFormProps> = ({ photo, no }) => {
+interface CreatePhotoResponse extends ResponseType {
+    photo: Photo;
+}
+
+const noImagePath = "/noimage.jpg";
+
+const PhotoForm: NextPage<PhotoFormProps> = ({ photo, onChangePhoto }) => {
     const router = useRouter();
     const { register, handleSubmit, setError, reset, setValue } =
         useForm<IForm>();
-    const [createOrUpdatePhoto, { loading }] = useMutation<ResponseType>(
-        `/api/photos/me/${router.query.id}`,
-        "POST"
-    );
-    const [photoWidth, setPhotoWidth] = useState(0);
-    const [photoHeight, setPhotoHeight] = useState(0);
+    const [createPhoto, { loading, data: createdPhoto, reset: photoReset }] =
+        useMutation<CreatePhotoResponse>(
+            `/api/albums/me/${router.query.id}/photos`,
+            "POST"
+        );
+    const [photoWidth, setPhotoWidth] = useState(200);
+    const [photoHeight, setPhotoHeight] = useState(200);
 
     useEffect(() => {
         if (photo && photo.id) {
@@ -57,14 +66,12 @@ const PhotoForm: NextPage<PhotoFormProps> = ({ photo, no }) => {
         } else {
             setValue("title", "");
             setValue("description", "");
-            setNewUrl("/noimage.jpg");
+            setNewUrl(noImagePath);
             setImagExist(false);
         }
     }, [photo, setValue]);
 
-    const [newUrl, setNewUrl] = useState(
-        photo ? photo.imagePath : "/noimage.jpg"
-    );
+    const [newUrl, setNewUrl] = useState(photo ? photo.imagePath : noImagePath);
     const [imagExist, setImagExist] = useState(!!photo);
     const { getRootProps, getInputProps } = useDropzone({
         onDrop: useCallback((acceptedFiles) => {
@@ -82,9 +89,66 @@ const PhotoForm: NextPage<PhotoFormProps> = ({ photo, no }) => {
         }
     };
 
-    const onValid = async ({ title, description, image }: IForm) => {
-        const dataForm: any = { width: photoWidth, height: photoHeight };
-        if (title != photo?.title) dataForm.title = title;
+    useEffect(() => {
+        if (createdPhoto && createdPhoto.ok && createdPhoto.photo) {
+            if (newUrl && photo) {
+                const { photo: newPhoto } = createdPhoto;
+                (async () => {
+                    // const { uploadURL } = await (
+                    //     await fetch(`/api/files`)
+                    // ).json();
+
+                    // const file = await convertURLtoFile(newUrl);
+
+                    // const form = new FormData();
+                    // form.append("file", file, `${Date.now()}`);
+                    // const {
+                    //     result: { id },
+                    // } = await (
+                    //     await fetch(uploadURL, { method: "POST", body: form })
+                    // ).json();
+
+                    // await fetch(
+                    //     `/api/albums/me/${router.query.id}/photos/${newPhoto.id}`,
+                    //     {
+                    //         method: "POST",
+                    //         headers: {
+                    //             "Content-Type": "application/json",
+                    //         },
+                    //         body: JSON.stringify({
+                    //             imagePath: `https://imagedelivery.net/aJlyv1nzGO481jzicZKViQ/${id}/public`,
+                    //         }),
+                    //     }
+                    // );
+
+                    await fetch(
+                        `/api/albums/me/${router.query.id}/photos/${newPhoto.id}`,
+                        {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({
+                                imagePath:
+                                    "https://cdn.pixabay.com/photo/2018/01/14/23/12/nature-3082832__480.jpg",
+                            }),
+                        }
+                    );
+                })();
+                newPhoto.imagePath = newUrl;
+                onChangePhoto(photo.id, newPhoto);
+                photoReset();
+            }
+        }
+    }, [createdPhoto, newUrl, photo, router, onChangePhoto, photoReset]);
+
+    const onValid = async ({ title, description }: IForm) => {
+        const dataForm: any = {
+            width: photoWidth,
+            height: photoHeight,
+            title,
+            paginationId: photo.paginationId,
+        };
         if (description != photo?.description && description) {
             const regex = /#[^\s#]+/g;
             const tags = description.match(regex);
@@ -93,35 +157,12 @@ const PhotoForm: NextPage<PhotoFormProps> = ({ photo, no }) => {
             if (tags) dataForm.tags = tags.join(" ");
         }
 
-        if (newUrl !== "/noimage.jpg") {
-            if (newUrl !== photo?.imagePath) {
-                // const { uploadURL } = await (
-                //     await fetch(`/api/files`)
-                // ).json();
-
-                // const file = await convertURLtoFile(newUrl);
-
-                // const form = new FormData();
-                // form.append("file", file, `${name}#${user.id}`);
-                // const {
-                //     result: { id },
-                // } = await (
-                //     await fetch(uploadURL, { method: "POST", body: form })
-                // ).json();
-
-                // dataForm.imagePath = id;
-
-                dataForm.imagePath =
-                    "https://cdn.pixabay.com/photo/2018/01/14/23/12/nature-3082832__480.jpg";
+        if (newUrl && newUrl !== noImagePath) {
+            if (!loading) {
+                console.log("!!");
+                createPhoto(dataForm);
+                reset();
             }
-
-            if (photo && photo.id && dataForm && !loading) {
-                console.log(dataForm);
-                createOrUpdatePhoto({ ...dataForm, photoId: photo.id, no });
-            } else if (dataForm && !loading) {
-                createOrUpdatePhoto({ ...dataForm, no });
-            }
-            location.reload();
         } else {
             setError("image", {}, { shouldFocus: true });
             alert("이미지를 넣어주세요!");
@@ -140,7 +181,7 @@ const PhotoForm: NextPage<PhotoFormProps> = ({ photo, no }) => {
                     <EditCanvas
                         key={photo.id}
                         photo={photo}
-                        url={newUrl}
+                        url={newUrl!}
                         onResize={onPhotoResize}
                     />
                 )}
@@ -167,7 +208,7 @@ const PhotoForm: NextPage<PhotoFormProps> = ({ photo, no }) => {
                             />
                             {imagExist ? (
                                 <Image
-                                    src={newUrl}
+                                    src={newUrl!}
                                     className="object-fill"
                                     layout="fill"
                                     alt=""

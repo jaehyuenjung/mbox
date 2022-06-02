@@ -3,7 +3,7 @@ import { NextPage } from "next";
 import Image from "next/image";
 
 interface CardProps {
-    item?: { id: number; title: string; imagePath: string };
+    item?: { id: number; title: string; imagePath: null | string };
     isPhoto?: boolean;
     onDelete: (id?: number) => void;
     onClick: (id?: number) => void;

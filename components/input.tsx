@@ -80,7 +80,7 @@ const Input: NextPage<InputProps> = ({
                     id={id}
                     type={type}
                     required={required}
-                    className="py-2 px-4 w-full border rounded-md border-gray-300 focus:outline-none focus:ring-4 focus:ring-opacity-20 focus:border-blue-400 focus:ring-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed "
+                    className="py-2 px-4  w-full border rounded-md border-gray-300 focus:outline-none focus:ring-4 focus:ring-opacity-20 focus:border-blue-400 focus:ring-blue-400 transition disabled:opacity-50 disabled:cursor-not-allowed "
                 />
             )}
         </>

@@ -47,10 +47,10 @@ const Detail: NextPage = () => {
     const onCreatePhoto = () => {
         if (data) {
             const tump: Photo = {
-                id: 0,
+                id: Date.now(),
                 title: "",
                 description: "",
-                imagePath: "",
+                imagePath: "/noimage.jpg",
                 tags: "",
                 paginationId: data.pagination.id,
                 width: 200,
@@ -62,6 +62,18 @@ const Detail: NextPage = () => {
             newData.pagination.photos = [...data.pagination.photos, tump];
             mutate(newData, false);
             setSelected(tump);
+        }
+    };
+
+    const onChangePhoto = (deleteId: number, newPhoto: Photo) => {
+        if (data) {
+            const newData = { ...data };
+            newData.pagination.photos = [
+                ...data.pagination.photos.filter((p) => p.id !== deleteId),
+                newPhoto,
+            ];
+            mutate(newData, false);
+            setSelected(newPhoto);
         }
     };
 
@@ -173,7 +185,12 @@ const Detail: NextPage = () => {
 
             <div className="flex-1 bg-slate-600 p-5">
                 <div className="flex flex-col space-y-3 w-full h-full bg-slate-200 rounded-3xl p-5">
-                    <PhotoForm photo={selected} no={data?.pagination.no} />
+                    {selected && (
+                        <PhotoForm
+                            photo={selected}
+                            onChangePhoto={onChangePhoto}
+                        />
+                    )}
                 </div>
             </div>
 
