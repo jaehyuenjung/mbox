@@ -93,9 +93,6 @@ const Home: NextPage<BaseProps> = ({ user }) => {
   const perAlbums: IPerAlbum[] = [];
 
   // 앨범 삭제 기능
-  const onRemove = () => {
-    setAlbums(albums.filter((album) => album.id !== perAlbums[index].id));
-  };
 
   if (page) {
     for (let i = 0; i < page; i++) {

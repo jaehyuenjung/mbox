@@ -26,13 +26,13 @@ const CreateAlbum: NextPage<IModal> = ({ open, onClose }) => {
     setimg(URL.createObjectURL(acceptedFiles[0]));
     setimgcheck(true);
   }, []);
-
   const { getRootProps, getInputProps, isDragActive } = useDropzone({ onDrop });
   const imgload = (event: any) => {
     if (event.target.files[0] != undefined) {
       setimg(URL.createObjectURL(event.target.files[0]));
     }
   };
+
   const thumbs = files.map((file, index) => (
     <div className="w-full h-full" key={file.name}>
       <img
