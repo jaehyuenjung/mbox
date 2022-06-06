@@ -38,7 +38,7 @@ const NavBar: NextPage<BaseProps> = ({ user }) => {
         setOpen(true);
     }
     return (
-        <nav className="fixed w-full flex justify-between items-center left-0 top-0 ">
+        <nav className="fixed w-full flex justify-between items-center left-0 top-0 z-50 bg-white">
             <Link href="/">
                 <a className="relative w-10 aspect-square">
                     <Image

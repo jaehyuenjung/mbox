@@ -1,21 +1,9 @@
-import { AnimatePresence, motion } from "framer-motion";
 import Rectangle from "@libs/client/canvas/shapes/rectangle";
 import P5JsSettings from "@libs/client/canvas/utils/p5js_settings";
 import type { NextPage } from "next";
-import p5Types from "p5";
+import p5Types, { Graphics } from "p5";
 import { useEffect, useRef, useState } from "react";
-import Sketch from "react-p5";
-import {
-    Engine,
-    Mouse,
-    MouseConstraint,
-    World,
-    Events,
-    Bounds,
-    Vector,
-    Body,
-    Render,
-} from "matter-js";
+import { Engine, World, Bounds } from "matter-js";
 import Boundary from "@libs/client/canvas/shapes/boundary";
 import React from "react";
 import Canvas from "./canvas";
@@ -28,10 +16,10 @@ interface CanvasProps {
 }
 
 const ReadCanvas: NextPage<CanvasProps> = ({ width, height, photos }) => {
+    const [font, setFont] = useState<p5Types.Font>();
     const [shapes, setShapes] = useState<Rectangle[]>([]);
     const [albumImages, setAlbumImages] = useState<p5Types.Image[]>([]);
     const grounds: Boundary[] = [];
-    let font: p5Types.Font;
 
     const [engine, setEngine] = useState<Engine>();
     const [world, setWorld] = useState<World>();
@@ -41,10 +29,36 @@ const ReadCanvas: NextPage<CanvasProps> = ({ width, height, photos }) => {
     const [hoverY, setHoverY] = useState(-height);
     const [hover, setHover] = useState<Photo>();
 
-    const preload = (p5: p5Types) => {
-        font = p5.loadFont("/assets/fonts/TMONBlack.ttf");
-        setAlbumImages(photos.map((photo) => p5.loadImage(photo.imagePath)));
-    };
+    useEffect(() => {
+        if (P5 && photos) {
+            setAlbumImages(
+                photos.map((photo) => P5.loadImage(photo.imagePath!))
+            );
+        }
+    }, [P5, photos]);
+
+    useEffect(() => {
+        if (P5 && world && albumImages) {
+            setShapes(
+                albumImages.map((_, i) => {
+                    const x = Math.floor(Math.random() * width);
+                    const y = Math.floor(Math.random() * height);
+                    const rectToDrag = new Rectangle(
+                        P5,
+                        x,
+                        y,
+                        photos[i].width,
+                        photos[i].height,
+                        world
+                    );
+                    rectToDrag.dragEnabled = true;
+                    rectToDrag.editEnabled = false;
+                    rectToDrag.fillColor = P5.color(80);
+                    return rectToDrag;
+                })
+            );
+        }
+    }, [P5, world, albumImages, width, height, photos]);
 
     const setup = (p5: p5Types, canvasParentRef: Element) => {
         setP5(p5);
@@ -67,42 +81,21 @@ const ReadCanvas: NextPage<CanvasProps> = ({ width, height, photos }) => {
             new Boundary(width / 2, height + 400 / 2, width + 400 * 2, 400, w)
         );
 
-        setShapes(
-            albumImages.map((_, i) => {
-                const x = Math.floor(Math.random() * width);
-                const y = Math.floor(Math.random() * height);
-                const rectToDrag = new Rectangle(
-                    p5,
-                    x,
-                    y,
-                    photos[i].width,
-                    photos[i].height,
-                    w
-                );
-                rectToDrag.dragEnabled = true;
-                rectToDrag.editEnabled = false;
-                rectToDrag.fillColor = p5.color(80);
-                return rectToDrag;
-            })
-        );
-
         p5.textureMode(p5.NORMAL);
 
         setEngine(e);
         setWorld(w);
     };
+
     const draw = (p5: p5Types) => {
         if (engine) {
             p5.background(0);
-            Engine.update(engine);
             p5.translate(-width / 2, -height / 2);
-
+            Engine.update(engine);
             p5.noStroke();
-
             p5.push();
             grounds.forEach((g) => g.draw(p5));
             p5.pop();
-
             p5.push();
             shapes.forEach((s, i) => s.draw(p5, albumImages[i]));
             p5.pop();
@@ -148,19 +141,24 @@ const ReadCanvas: NextPage<CanvasProps> = ({ width, height, photos }) => {
                     className="absolute text-white text-lg z-20 px-3 py-2"
                 >
                     {hover && isHover && (
-                        <div className={'min-h-[50px] min-w-[40px] max-w-[300px] w-auto h-auto text-[15px] bg-[rgb(51,51,51)] opacity-[0.8] p-[5px] rounded-[10px]'}>
-                            <div>제목</div>
-                            <div>{hover.title}</div>
-                            <div>내용</div>
-                            <div>{hover.description}</div>
-                            <div>{hover.tags}</div>
-                        </div>
+                        <>
+                            <div
+                                className={
+                                    "min-h-[50px] min-w-[40px] max-w-[300px] w-auto h-auto text-[15px] bg-[rgb(51,51,51)] opacity-[0.8] p-[5px] rounded-[10px]"
+                                }
+                            >
+                                <div>제목</div>
+                                <div>{hover.title}</div>
+                                <div>내용</div>
+                                <div>{hover.description}</div>
+                                <div>{hover.tags}</div>
+                            </div>
+                        </>
                     )}
                 </div>
             )}
 
             <Canvas
-                preload={preload}
                 setup={setup}
                 draw={draw}
                 // windowResized={(p5) => {
@@ -207,4 +205,4 @@ const ReadCanvas: NextPage<CanvasProps> = ({ width, height, photos }) => {
     );
 };
 
-export default React.memo(ReadCanvas);
+export default ReadCanvas;

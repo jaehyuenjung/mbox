@@ -80,29 +80,19 @@ const AlbumForm: NextPage<AlbumFormProps> = ({ data, type }) => {
             const { album } = createdData;
             if (newUrl && newUrl !== noImagePath) {
                 (async () => {
-                    // const { uploadURL } = await (
-                    //     await fetch(`/api/files`)
-                    // ).json();
+                    const { uploadURL } = await (
+                        await fetch(`/api/files`)
+                    ).json();
 
-                    // const file = await convertURLtoFile(newUrl);
+                    const file = await convertURLtoFile(newUrl);
 
-                    // const form = new FormData();
-                    // form.append("file", file, `${Date.now()}`);
-                    // const {
-                    //     result: { id },
-                    // } = await (
-                    //     await fetch(uploadURL, { method: "POST", body: form })
-                    // ).json();
-
-                    // await fetch(`/api/albums/me/${album.id}`, {
-                    //     method: "POST",
-                    //     headers: {
-                    //         "Content-Type": "application/json",
-                    //     },
-                    //     body: JSON.stringify({
-                    //         imagePath: `https://imagedelivery.net/aJlyv1nzGO481jzicZKViQ/${id}/public`,
-                    //     }),
-                    // });
+                    const form = new FormData();
+                    form.append("file", file, `${Date.now()}`);
+                    const {
+                        result: { id },
+                    } = await (
+                        await fetch(uploadURL, { method: "POST", body: form })
+                    ).json();
 
                     await fetch(`/api/albums/me/${album.id}`, {
                         method: "POST",
@@ -110,8 +100,7 @@ const AlbumForm: NextPage<AlbumFormProps> = ({ data, type }) => {
                             "Content-Type": "application/json",
                         },
                         body: JSON.stringify({
-                            imagePath:
-                                "https://cdn.pixabay.com/photo/2018/01/14/23/12/nature-3082832__480.jpg",
+                            imagePath: `https://imagedelivery.net/aJlyv1nzGO481jzicZKViQ/${id}/public`,
                         }),
                     });
                 })();
