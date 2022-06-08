@@ -25,20 +25,21 @@ async function handler(
     //     return res.json({ ok: false, error: "" });
 
     if (req.method === "POST") {
-        const { title, description, password, imagePath } = req.body;
+        const { title, description, tags, password, imagePath } = req.body;
         const data: any = {};
 
         if (title) data.title = title;
         if (description) data.description = description;
+        if (tags) data.tags = tags;
         if (password) data.password = password;
         if (imagePath) data.imagePath = imagePath;
 
-        await client.album.update({
+        const album = await client.album.update({
             where: { id: +albumId },
             data,
         });
 
-        return res.json({ ok: true });
+        return res.json({ ok: true, album });
     } else if (req.method === "DELETE") {
         await client.album.delete({ where: { id: album.id } });
 

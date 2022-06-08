@@ -15,8 +15,9 @@ import { BaseProps } from "@components/layout";
 import { ResponseType } from "@libs/server/withHandler";
 import AlbumForm from "@components/album-form";
 import Dialog from "@components/dialog";
+import { QRCodeCanvas } from "qrcode.react";
 
-// 1: CREATE, 2: UPDATE, 3: DELETE
+// 1: Create, 2: Update 3: QR
 type MODAL_CONTENT_TYPE = 1 | 2 | 3;
 
 interface IPerAlbum extends Album {
@@ -50,11 +51,12 @@ interface DialogBtn {
 }
 
 const Home: NextPage<BaseProps> = ({ user }) => {
-    const { data } = useSWR<AlbumListResponse>("/api/albums/me");
+    const { data, mutate } = useSWR<AlbumListResponse>("/api/albums/me");
 
     const [index, setIndex] = useState(0);
     const [perIndex, setPerIndex] = useState(0);
     const [delay, setDelay] = useState(false);
+    const [selectPerIndex, setSelectPerIndex] = useState<Album>();
 
     const [openModal, setOpenModal] = useState(false);
     const [modalTitle, setModalTitle] = useState("");
@@ -254,15 +256,54 @@ const Home: NextPage<BaseProps> = ({ user }) => {
                                         setDialogButtons([
                                             {
                                                 text: "qr코드/url 복사",
-                                                onCallback: () => {},
+                                                onCallback: () => {
+                                                    setOpenModal(true);
+                                                    setModalTitle("");
+                                                    setModalContentType(3);
+                                                },
                                             },
                                             {
                                                 text: "수정",
-                                                onCallback: () => {},
+                                                onCallback: () => {
+                                                    setOpenModal(true);
+                                                    setModalTitle("앨범 수정");
+                                                    setModalContentType(2);
+                                                },
                                             },
                                             {
                                                 text: "삭제",
-                                                onCallback: () => {},
+                                                onCallback: () => {
+                                                    if (data) {
+                                                        fetch(
+                                                            `/api/albums/me/${albums[index].id}`,
+                                                            {
+                                                                method: "DELETE",
+                                                                headers: {
+                                                                    "Content-Type":
+                                                                        "application/json",
+                                                                },
+                                                            }
+                                                        );
+
+                                                        const newAlbum = [
+                                                            ...data.albums.slice(
+                                                                0,
+                                                                index
+                                                            ),
+                                                            ...data.albums.slice(
+                                                                index + 1
+                                                            ),
+                                                        ];
+                                                        mutate(
+                                                            {
+                                                                ok: true,
+                                                                albums: newAlbum,
+                                                            },
+                                                            false
+                                                        );
+                                                        setOpenDialog(false);
+                                                    }
+                                                },
                                             },
                                             {
                                                 text: "취소",
@@ -441,20 +482,6 @@ const Home: NextPage<BaseProps> = ({ user }) => {
                     ))}
                 </ul>
             </motion.div>
-            <Modal
-                open={openModal}
-                title={modalTitle}
-                onCloseCallback={() => {
-                    setOpenModal(false);
-                }}
-            >
-                {modalContentType ? (
-                    <AlbumForm
-                        data={data?.albums || []}
-                        type={modalContentType}
-                    />
-                ) : null}
-            </Modal>
             <Dialog
                 open={openDialog}
                 title={dialogTitle}
@@ -462,6 +489,80 @@ const Home: NextPage<BaseProps> = ({ user }) => {
                 buttons={dialogButtons}
                 onCloseCallback={() => setOpenDialog(false)}
             />
+            <Modal
+                open={openModal}
+                title={modalTitle}
+                big={modalContentType !== 3}
+                onCloseCallback={() => {
+                    setOpenModal(false);
+                }}
+            >
+                {modalContentType !== 3 && (
+                    <AlbumForm
+                        data={data?.albums || []}
+                        album={
+                            modalContentType === 1 ? undefined : albums[index]
+                        }
+                    />
+                )}
+                {modalContentType === 3 && (
+                    <div className="flex flex-col items-center justify-center bg-white w-full rounded-xl space-y-8">
+                        <QRCodeCanvas
+                            id="qrCode"
+                            value={`http://localhost:3000/other/${user?.id}`}
+                            size={256}
+                        />
+
+                        <div className="flex justify-center items-center space-x-2">
+                            <button
+                                onClick={() => {
+                                    const qrCode = document.getElementById(
+                                        "qrCode"
+                                    ) as HTMLCanvasElement;
+                                    if (qrCode) {
+                                        qrCode.toBlob(async (blob) => {
+                                            if (blob) {
+                                                try {
+                                                    await navigator.clipboard.write(
+                                                        [
+                                                            new ClipboardItem({
+                                                                [blob.type]:
+                                                                    blob,
+                                                            }),
+                                                        ]
+                                                    );
+
+                                                    alert("Copy Succes!");
+                                                } catch {
+                                                    alert("Copy Fail!");
+                                                }
+                                            } else alert("Copy Fail!");
+                                        });
+                                    } else alert("Copy Fail!");
+                                }}
+                                className="py-2 px-3 bg-black text-white rounded-md"
+                            >
+                                QR COPY
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    try {
+                                        await navigator.clipboard.writeText(
+                                            `http://localhost:3000/other/${user?.id}`
+                                        );
+                                        alert("Copy Succes!");
+                                    } catch {
+                                        alert("Copy Fail!");
+                                    }
+                                }}
+                                className="py-2 px-3 bg-black text-white rounded-md"
+                            >
+                                URL COPY
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </Modal>
         </div>
     );
 };

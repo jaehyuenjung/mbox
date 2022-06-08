@@ -9,8 +9,6 @@ import { useForm } from "react-hook-form";
 import { mutate } from "swr";
 import Input from "./input";
 
-type CONTENT_TYPE = 1 | 2 | 3;
-
 const noImagePath = "/noimage.jpg";
 
 interface IForm {
@@ -21,23 +19,28 @@ interface IForm {
     newUrl?: string;
 }
 
-interface CreateAlbumResponse {
+interface AlbumResponse {
     ok: boolean;
     album?: Album;
 }
 
 interface AlbumFormProps {
     data: Album[];
-    type: CONTENT_TYPE;
+    album?: Album;
 }
 
-const AlbumForm: NextPage<AlbumFormProps> = ({ data, type }) => {
-    const { register, handleSubmit, reset } = useForm<IForm>();
+const AlbumForm: NextPage<AlbumFormProps> = ({ data, album }) => {
+    const { register, handleSubmit, reset, setValue } = useForm<IForm>();
 
     const [
         createAlbum,
         { loading: createLoading, data: createdData, reset: createReset },
-    ] = useMutation<CreateAlbumResponse>("/api/albums/me", "POST");
+    ] = useMutation<AlbumResponse>("/api/albums/me", "POST");
+
+    const [
+        updateAlbum,
+        { loading: updateLoading, data: updatedData, reset: updateReset },
+    ] = useMutation<AlbumResponse>(`/api/albums/me/${album?.id}`, "POST");
 
     const [newUrl, setNewUrl] = useState<string>();
     const [imagExist, setImagExist] = useState(false);
@@ -66,19 +69,63 @@ const AlbumForm: NextPage<AlbumFormProps> = ({ data, type }) => {
 
             dataForm.description = description.split(regex).join(" ");
             if (tags) dataForm.tags = tags.join(" ");
+            console.log(dataForm.description);
+            console.log(dataForm.tags);
         }
         if (password) dataForm.password = password;
 
-        if (!createLoading) {
+        if (!createLoading && !album) {
             createAlbum(dataForm);
+        } else if (!updateLoading && album) {
+            updateAlbum(dataForm);
         }
         reset();
     };
 
     useEffect(() => {
         if (createdData && createdData.ok && createdData.album) {
-            const { album } = createdData;
+            const { album: newAlbum } = createdData;
             if (newUrl && newUrl !== noImagePath) {
+                (async () => {
+                    const { uploadURL } = await (
+                        await fetch(`/api/files`)
+                    ).json();
+
+                    const file = await convertURLtoFile(newUrl);
+
+                    const form = new FormData();
+                    form.append("file", file, `${Date.now()}`);
+                    const {
+                        result: { id },
+                    } = await (
+                        await fetch(uploadURL, { method: "POST", body: form })
+                    ).json();
+
+                    await fetch(`/api/albums/me/${newAlbum.id}`, {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            imagePath: `https://imagedelivery.net/aJlyv1nzGO481jzicZKViQ/${id}/public`,
+                        }),
+                    });
+                })();
+                newAlbum.imagePath = newUrl;
+            }
+            mutate(
+                "/api/albums/me",
+                { ok: true, albums: [...data, newAlbum] },
+                false
+            );
+            createReset();
+        }
+    }, [createdData, data, newUrl, createReset]);
+
+    useEffect(() => {
+        if (album && updatedData && updatedData.ok && updatedData.album) {
+            const { album: newAlbum } = updatedData;
+            if (newUrl && newUrl !== album.imagePath) {
                 (async () => {
                     const { uploadURL } = await (
                         await fetch(`/api/files`)
@@ -104,21 +151,32 @@ const AlbumForm: NextPage<AlbumFormProps> = ({ data, type }) => {
                         }),
                     });
                 })();
-                album.imagePath = newUrl;
+                newAlbum.imagePath = newUrl;
             }
-            mutate(
-                "/api/albums/me",
-                { ok: true, albums: [...data, album] },
-                false
-            );
-            createReset();
+            const newData = [...data];
+            const index = newData.findIndex((a) => a.id === newAlbum.id);
+            newData[index] = newAlbum;
+            mutate("/api/albums/me", { ok: true, albums: newData }, false);
+            updateReset();
         }
-    }, [createdData, data, newUrl, createReset]);
+    }, [updatedData, data, newUrl, updateReset, album]);
+
+    useEffect(() => {
+        if (album) {
+            setValue("title", album.title);
+            setValue(
+                "description",
+                album.description
+                    ? album.description + (album.tags ? "\n" + album.tags : "")
+                    : ""
+            );
+        }
+    }, [album, setValue]);
 
     return (
         <form
             onSubmit={handleSubmit(onValid)}
-            className="h-full w-full flex items-center justify-center rounded-md space-x-4  overflow-hidden"
+            className="h-full w-full flex items-center justify-center space-x-4  overflow-hidden"
         >
             <div className="h-full aspect-square overflow-hidden">
                 <div
@@ -131,9 +189,11 @@ const AlbumForm: NextPage<AlbumFormProps> = ({ data, type }) => {
                         type="file"
                         onChange={imgload}
                     />
-                    {imagExist ? (
+                    {album || imagExist ? (
                         <Image
-                            src={newUrl || noImagePath}
+                            src={
+                                album ? album.imagePath! : newUrl || noImagePath
+                            }
                             className="object-fill"
                             layout="fill"
                             alt=""
