@@ -50,10 +50,6 @@ class Rect {
         return new Rect(this._x, this._y, this._width, this._height);
     }
 
-    localRect() {
-        return new Rect(0, 0, this.width, this.height);
-    }
-
     contains(otherRect: Rect) {
         return (
             this.minX < otherRect.minX &&
@@ -63,30 +59,10 @@ class Rect {
         );
     }
 
-    expandToIncludeRect(otherRect: Rect) {
-        let maxX = this.maxX;
-        let maxY = this.maxY;
-
-        this._x = Math.min(this._x, otherRect._x);
-        this._y = Math.min(this._y, otherRect._y);
-
-        maxX = Math.max(maxX, otherRect.maxX);
-        maxY = Math.max(maxY, otherRect.maxY);
-
-        this._width = maxX - this._x;
-        this._height = maxY - this._y;
-    }
-
     containsXY(x: number, y: number) {
         return (
             this.minX <= x && x < this.maxX && this.minY <= y && y < this.maxY
         );
-    }
-
-    getConcentric(scale: number) {
-        let newX = this.x - ((scale - 1) * this.width) / 2;
-        let newY = this.y - ((scale - 1) * this.height) / 2;
-        return new Rect(newX, newY, this.width * scale, this.height * scale);
     }
 }
 

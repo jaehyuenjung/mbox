@@ -45,7 +45,7 @@ const PhotoForm: NextPage<PhotoFormProps> = ({ photo, onChangePhoto }) => {
         useForm<IForm>();
     const [createPhoto, { loading, data: createdPhoto, reset: photoReset }] =
         useMutation<CreatePhotoResponse>(
-            `/api/albums/me/${router.query.id}/photos`,
+            `/api/albums/${router.query.id}/photos`,
             "POST"
         );
     const [photoWidth, setPhotoWidth] = useState(200);
@@ -109,7 +109,7 @@ const PhotoForm: NextPage<PhotoFormProps> = ({ photo, onChangePhoto }) => {
                     ).json();
 
                     await fetch(
-                        `/api/albums/me/${router.query.id}/photos/${newPhoto.id}`,
+                        `/api/albums/${router.query.id}/photos/${newPhoto.id}`,
                         {
                             method: "POST",
                             headers: {
@@ -145,7 +145,6 @@ const PhotoForm: NextPage<PhotoFormProps> = ({ photo, onChangePhoto }) => {
 
         if (newUrl && newUrl !== noImagePath) {
             if (!loading) {
-                console.log("!!");
                 createPhoto(dataForm);
                 reset();
             }

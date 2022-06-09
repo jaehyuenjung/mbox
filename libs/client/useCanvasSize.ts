@@ -13,11 +13,6 @@ export default function useCanvasSize(ref: RefObject<HTMLDivElement>) {
             }
         };
         setClientPageSize();
-
-        // window.addEventListener("resize", setClientPageSize);
-        return () => {
-            // window.removeEventListener("resize", setClientPageSize);
-        };
     }, [ref]);
 
     return { width, height };

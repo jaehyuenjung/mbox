@@ -1,6 +1,5 @@
 import { Color, p5InstanceExtensions } from "p5";
 import Rect from "../models/rect";
-import P5JsUtils from "../utils/p5js_utils";
 import Point from "./point";
 import Matter, {
     World,
@@ -46,9 +45,6 @@ class Rectangle extends Rect {
         this.computePoints();
 
         const options = {
-            collisionFilter: {
-                category: RECTANGLE_CATEGORY,
-            },
             friction: 0.3,
             restitution: 0.6,
         };
@@ -145,8 +141,6 @@ class Rectangle extends Rect {
         const pointDragged = this.points.find((p) => p.isBeingDragged);
 
         if (pointDragged) {
-            // const originPos = { x: pointDragged.x, y: pointDragged.y };
-            // const pos = this.body.position;
             pointDragged.set(p5.mouseX, p5.mouseY);
 
             if (this.topLeft == pointDragged) {
@@ -214,7 +208,6 @@ class Rectangle extends Rect {
         this.topRight.set(vertices[3].x, vertices[3].y);
 
         p5.push();
-        P5JsUtils.applyStyleSet(p5, this);
         p5.push();
         p5.noStroke();
         p5.smooth();
@@ -227,7 +220,10 @@ class Rectangle extends Rect {
         p5.endShape();
         p5.pop();
         if (this.dragEnabled && this.editEnabled) {
-            P5JsUtils.drawControlPoints(p5, this.points);
+            // P5JsUtils.drawControlPoints(p5, this.points);
+            p5.push();
+            this.points.forEach((point) => point.draw(p5));
+            p5.pop();
         }
         p5.pop();
     }

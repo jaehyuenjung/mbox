@@ -1,6 +1,5 @@
 import { BaseProps } from "@components/layout";
 import Rectangle from "@libs/client/canvas/shapes/rectangle";
-import P5JsSettings from "@libs/client/canvas/utils/p5js_settings";
 import type { NextPage } from "next";
 import p5Types, { Image } from "p5";
 import { useEffect, useRef, useState } from "react";
@@ -60,7 +59,6 @@ const EditCanvas: NextPage<EditCanvasProps> = ({ photo, url, onResize }) => {
         const e = Engine.create();
         e.gravity.y = 0;
         const w = e.world;
-        P5JsSettings.init(p5);
 
         grounds.push(new Boundary(-400 / 2, height / 2, 400, height, w));
         grounds.push(new Boundary(width + 400 / 2, height / 2, 400, height, w));

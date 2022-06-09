@@ -1,5 +1,4 @@
 import Rectangle from "@libs/client/canvas/shapes/rectangle";
-import P5JsSettings from "@libs/client/canvas/utils/p5js_settings";
 import type { NextPage } from "next";
 import p5Types, { Graphics } from "p5";
 import { useEffect, useRef, useState } from "react";
@@ -70,7 +69,6 @@ const ReadCanvas: NextPage<CanvasProps> = ({ width, height, photos }) => {
 
         e.gravity.y = 0;
         const w = e.world;
-        P5JsSettings.init(p5);
 
         grounds.push(new Boundary(-400 / 2, height / 2, 400, height, w));
         grounds.push(new Boundary(width + 400 / 2, height / 2, 400, height, w));

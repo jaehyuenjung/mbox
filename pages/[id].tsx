@@ -10,6 +10,7 @@ import PhotoForm from "@components/photo-form";
 import Card from "@components/card";
 import useMutation from "@libs/client/useMutation";
 import dynamic from "next/dynamic";
+import photos from "./api/albums/[albumId]/photos";
 
 interface IPaginationDetail extends Pagination {
     photos: Photo[];
@@ -23,10 +24,6 @@ interface PaginationResponse extends ResponseType {
 const Detail: NextPage = () => {
     const router = useRouter();
 
-    const [deletePhoto, { loading: photoDeleteLoading }] = useMutation(
-        `/api/photos/me/${router.query.id}`,
-        "DELETE"
-    );
     const [createPage, { loading: pageCreateLoading }] = useMutation(
         `/api/pages/me/${router.query.id}`,
         "POST"
@@ -84,9 +81,12 @@ const Detail: NextPage = () => {
                 (photo) => photo.id !== id
             );
             mutate(newData, false);
-            if (!photoDeleteLoading) {
-                deletePhoto({ photoId: id });
-            }
+            fetch(`/api/albums/${router.query.id}/photos/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
         }
     };
 

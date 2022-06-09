@@ -51,7 +51,7 @@ interface DialogBtn {
 }
 
 const Home: NextPage<BaseProps> = ({ user }) => {
-    const { data, mutate } = useSWR<AlbumListResponse>("/api/albums/me");
+    const { data, mutate } = useSWR<AlbumListResponse>("/api/albums");
 
     const [index, setIndex] = useState(0);
     const [perIndex, setPerIndex] = useState(0);
@@ -574,7 +574,7 @@ const Page: NextPage<IPageProps> = ({ albums, user }) => {
     return (
         <SWRConfig
             value={{
-                fallback: { "/api/albums/me": { ok: true, albums } },
+                fallback: { "/api/albums": { ok: true, albums } },
             }}
         >
             <Home user={user} />
