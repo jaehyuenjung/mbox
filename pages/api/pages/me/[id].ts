@@ -110,11 +110,14 @@ async function handler(
         });
 
         paginations = paginations
-            .filter((pagination) => pagination.no < no)
+            .filter((pagination) => pagination.no > no)
             .map((pagination) => ({ ...pagination, no: pagination.no - 1 }));
 
-        await client.pagination.updateMany({
-            data: paginations,
+        paginations.forEach(async (pagination) => {
+            await client.pagination.update({
+                where: { id: pagination.id },
+                data: { no: pagination.no },
+            });
         });
         return res.json({ ok: true });
     }

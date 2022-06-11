@@ -32,12 +32,9 @@ const Detail: NextPage = () => {
         `/api/pages/me/${router.query.id}`,
         "DELETE"
     );
+    const [page, setPage] = useState(1);
     const { data, mutate } = useSWR<PaginationResponse>(
-        router.query.id
-            ? router.query.page
-                ? `/api/pages/me/${router.query.id}?page=${router.query.page}`
-                : `/api/pages/me/${router.query.id}?page=${1}`
-            : null
+        router.query.id ? `/api/pages/me/${router.query.id}?page=${page}` : null
     );
     const [selected, setSelected] = useState<Photo>();
 
@@ -108,13 +105,18 @@ const Detail: NextPage = () => {
     const onDeletePage = (id?: number) => {
         if (id && data) {
             const newData = { ...data };
+            const newTotalPage = data.pagination.totalPage - 1;
             newData.pagination = {
                 ...data.pagination,
-                totalPage: data.pagination.totalPage - 1,
+                totalPage: newTotalPage,
             };
             mutate(newData, false);
             if (!pageDeleteLoading) {
                 deletePage({ no: id });
+
+                if (newTotalPage < page) {
+                    setPage((prev) => prev - 1);
+                }
             }
         }
     };
@@ -131,7 +133,7 @@ const Detail: NextPage = () => {
 
     const onClickPage = (id?: number) => {
         if (id) {
-            router.replace(`/${router.query.id}?page=${id}`);
+            setPage(id);
         }
     };
 

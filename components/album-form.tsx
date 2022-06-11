@@ -35,12 +35,12 @@ const AlbumForm: NextPage<AlbumFormProps> = ({ data, album }) => {
     const [
         createAlbum,
         { loading: createLoading, data: createdData, reset: createReset },
-    ] = useMutation<AlbumResponse>("/api/albums/me", "POST");
+    ] = useMutation<AlbumResponse>("/api/albums", "POST");
 
     const [
         updateAlbum,
         { loading: updateLoading, data: updatedData, reset: updateReset },
-    ] = useMutation<AlbumResponse>(`/api/albums/me/${album?.id}`, "POST");
+    ] = useMutation<AlbumResponse>(`/api/albums/${album?.id}`, "POST");
 
     const [newUrl, setNewUrl] = useState<string>();
     const [imagExist, setImagExist] = useState(false);
@@ -101,7 +101,7 @@ const AlbumForm: NextPage<AlbumFormProps> = ({ data, album }) => {
                         await fetch(uploadURL, { method: "POST", body: form })
                     ).json();
 
-                    await fetch(`/api/albums/me/${newAlbum.id}`, {
+                    await fetch(`/api/albums/${newAlbum.id}`, {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
@@ -114,7 +114,7 @@ const AlbumForm: NextPage<AlbumFormProps> = ({ data, album }) => {
                 newAlbum.imagePath = newUrl;
             }
             mutate(
-                "/api/albums/me",
+                "/api/albums",
                 { ok: true, albums: [...data, newAlbum] },
                 false
             );

@@ -275,7 +275,7 @@ const Home: NextPage<BaseProps> = ({ user }) => {
                                                 onCallback: () => {
                                                     if (data) {
                                                         fetch(
-                                                            `/api/albums/me/${albums[index].id}`,
+                                                            `/api/albums/${albums[index].id}`,
                                                             {
                                                                 method: "DELETE",
                                                                 headers: {
