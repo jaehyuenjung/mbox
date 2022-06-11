@@ -104,13 +104,14 @@ const Detail: NextPage = () => {
 
     const onDeletePage = (id?: number) => {
         if (id && data) {
-            const newData = { ...data };
             const newTotalPage = data.pagination.totalPage - 1;
-            newData.pagination = {
-                ...data.pagination,
-                totalPage: newTotalPage,
-            };
-            mutate(newData, false);
+            mutate(
+                {
+                    ok: true,
+                    pagination: { ...data.pagination, totalPage: newTotalPage },
+                },
+                false
+            );
             if (!pageDeleteLoading) {
                 deletePage({ no: id });
 
@@ -140,6 +141,10 @@ const Detail: NextPage = () => {
     if (data && !data.ok) {
         router.push("/404");
     }
+
+    useEffect(() => {
+        console.log(data);
+    }, [data]);
     return (
         <div className="w-full h-full flex min-w-[1200px]">
             <div

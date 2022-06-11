@@ -271,7 +271,7 @@ const Home: NextPage<HomeProps> = ({ albums }) => {
                                             className="w-full h-36 text-white bg-transparent resize-none overflow-hidden focus:overflow-auto focus:outline-none"
                                             variants={infoColVariants}
                                             value={
-                                                albums[index].description + ""
+                                                albums[index].description || ""
                                             }
                                         ></motion.textarea>
                                         <motion.div
